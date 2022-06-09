@@ -1,2 +1,2 @@
-# conduit-connector-firebolt
-Plugin for conduit
+# Conduit Connector Firebolt
+
