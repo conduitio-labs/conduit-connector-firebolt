@@ -29,6 +29,7 @@ const (
 	KeyColumns        string = "columns"
 	KeyPrimaryKey     string = "primaryKey"
 	KeyBatchSize      string = "batchSize"
+	KeyOrderingColumn string = "orderingColumn"
 
 	defaultBatchSize = 100
 )
@@ -58,6 +59,9 @@ type Config struct {
 
 	// BatchSize - size of batch.
 	BatchSize int `validate:"gte=1,lte=100"`
+
+	// OrderingColumn - column which using for ordering for snapshot iterator.
+	OrderingColumn string `validate:"required"`
 }
 
 // Parse attempts to parse plugins.Config into a Config struct.
@@ -69,6 +73,7 @@ func Parse(cfg map[string]string) (Config, error) {
 		DB:             cfg[KeyDB],
 		Table:          cfg[KeyTable],
 		PrimaryKey:     cfg[KeyPrimaryKey],
+		OrderingColumn: cfg[KeyOrderingColumn],
 		BatchSize:      defaultBatchSize,
 	}
 
