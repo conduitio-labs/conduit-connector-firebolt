@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package source
+package repository
 
-import (
-	"context"
-
-	sdk "github.com/conduitio/conduit-connector-sdk"
-)
-
-// Iterator interface.
-type Iterator interface {
-	Setup(ctx context.Context, p sdk.Position) error
-	HasNext(ctx context.Context) (bool, error)
-	Next(ctx context.Context) (sdk.Record, error)
-	Stop(ctx context.Context) error
-	Ack(rp sdk.Position) error
+// firebolt response after select query.
+type selectQueryResponse struct {
+	Meta []struct {
+		Name string `json:"name"`
+		Type string `json:"type"`
+	} `json:"meta"`
+	Data       []map[string]any `json:"data"`
+	Rows       int              `json:"rows"`
+	Statistics struct {
+		Elapsed   float64 `json:"elapsed"`
+		RowsRead  int     `json:"rows_read"`
+		BytesRead int     `json:"bytes_read"`
+	} `json:"statistics"`
 }

@@ -39,54 +39,85 @@ const (
 type SnapshotIterator struct {
 	// repository firebolt repository.
 	firebolt Repository
-	// dbInfo database info.
-	dbInfo dbInfo
 	// index - current index of element in current batch which iterator converts to record.
-	index int
-	// offset - current offset, show what batch iterator uses, using in query to get currentBatch.
-	offset int
+	indexInBatch int
+	// batchID - current batch id, show what batch iterator uses, using in query to get currentBatch.
+	batchID int
 	// batchSize size of batch.
 	batchSize int
 	// currentBatch - rows in current batch from table.
 	currentBatch []map[string]any
+	// name of column what iterator use for setting key in record.
+	primaryKey string
+	// column using for ordering in select query.
+	orderingColumn string
+	// list of columns to reading from table.
+	columns []string
+	// table which iterator read.
+	table string
 }
 
-type dbInfo struct {
-	// name  repository db name.
-	name string
-	// engine repository engine.
-	engine string
-	// table - table in snowflake for getting currentBatch.
-	table string
-	// columns list of table columns for record payload
-	// if empty - will get all columns.
-	columns []string
-	// Name of column what iterator use for setting key in record.
-	primaryKey string
-	// orderingColumn column for ordering for select query.
-	orderingColumn string
+func NewSnapshotIterator(
+	firebolt Repository,
+	batchSize int,
+	columns []string,
+	table, primaryKey, orderingColumn string,
+) *SnapshotIterator {
+	return &SnapshotIterator{
+		firebolt:       firebolt,
+		batchSize:      batchSize,
+		primaryKey:     primaryKey,
+		orderingColumn: orderingColumn,
+		columns:        columns,
+		table:          table}
+}
+
+// Setup iterator.
+func (i SnapshotIterator) Setup(ctx context.Context, p sdk.Position) error {
+	var index, batchID int
+
+	if p != nil {
+		pos, err := position.ParseSDKPosition(p)
+		if err != nil {
+			return nil
+		}
+
+		index = pos.IndexInBatch + 1
+		batchID = pos.BatchID
+	}
+
+	i.indexInBatch = index
+	i.batchID = batchID
+
+	rows, err := i.firebolt.GetRows(ctx, i.table, i.orderingColumn, i.columns, i.batchSize, i.batchID)
+	if err != nil {
+		return fmt.Errorf("get rows: %w", err)
+	}
+
+	i.currentBatch = rows
+
+	return nil
 }
 
 // HasNext check ability to get next record.
 func (i *SnapshotIterator) HasNext(ctx context.Context) (bool, error) {
 	var err error
 
-	if i.index < len(i.currentBatch) {
+	if i.indexInBatch < len(i.currentBatch) {
 		return true, nil
 	}
 
-	if i.index >= i.batchSize {
-		i.offset += i.batchSize
-		i.index = 0
+	if i.indexInBatch >= i.batchSize {
+		i.batchID += i.batchSize
+		i.indexInBatch = 0
 	}
 
-	i.currentBatch, err = i.firebolt.GetData(ctx, i.dbInfo.table, i.dbInfo.engine, i.dbInfo.orderingColumn,
-		i.batchSize, i.offset)
+	i.currentBatch, err = i.firebolt.GetRows(ctx, i.table, i.orderingColumn, i.columns, i.batchSize, i.batchID)
 	if err != nil {
 		return false, err
 	}
 
-	if len(i.currentBatch) == 0 || len(i.currentBatch) <= i.index {
+	if len(i.currentBatch) == 0 || len(i.currentBatch) <= i.indexInBatch {
 		return false, nil
 	}
 
@@ -100,35 +131,35 @@ func (i *SnapshotIterator) Next(ctx context.Context) (sdk.Record, error) {
 		err     error
 	)
 
-	pos := position.NewPosition(i.index, i.offset)
+	pos := position.NewPosition(i.indexInBatch, i.batchID)
 
-	payload, err = json.Marshal(i.currentBatch[i.index])
+	payload, err = json.Marshal(i.currentBatch[i.indexInBatch])
 	if err != nil {
 		return sdk.Record{}, fmt.Errorf("marshal error : %w", err)
 	}
 
-	if _, ok := i.currentBatch[i.index][i.dbInfo.primaryKey]; !ok {
+	if _, ok := i.currentBatch[i.indexInBatch][i.primaryKey]; !ok {
 		return sdk.Record{}, ErrKeyIsNotExist
 	}
 
-	key := i.currentBatch[i.index][i.dbInfo.primaryKey]
+	key := i.currentBatch[i.indexInBatch][i.primaryKey]
 
 	p, err := pos.ConvertToSDKPosition()
 	if err != nil {
 		return sdk.Record{}, err
 	}
 
-	i.index++
+	i.indexInBatch++
 
 	return sdk.Record{
 		Position: p,
 		Metadata: map[string]string{
-			metadataTable:  i.dbInfo.table,
+			metadataTable:  i.table,
 			metadataAction: string(actionInsert),
 		},
 		CreatedAt: time.Now(),
 		Key: sdk.StructuredData{
-			i.dbInfo.primaryKey: key,
+			i.primaryKey: key,
 		},
 		Payload: payload,
 	}, nil
@@ -137,4 +168,8 @@ func (i *SnapshotIterator) Next(ctx context.Context) (sdk.Record, error) {
 // Stop shutdown iterator.
 func (i *SnapshotIterator) Stop(ctx context.Context) error {
 	return i.firebolt.Close(ctx)
+}
+
+func (i *SnapshotIterator) Ack(rp sdk.Position) error {
+	return nil
 }

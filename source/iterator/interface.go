@@ -20,7 +20,7 @@ import (
 
 // Repository - firebolt repository.
 type Repository interface {
-	Login(ctx context.Context) (string, error)
-	GetData(ctx context.Context, table, engine, orderingColumn string, limit, offset int) ([]map[string]any, error)
+	GetRows(ctx context.Context, table, orderingColumn string, columns []string,
+		limit, offset int) ([]map[string]any, error)
 	Close(ctx context.Context) error
 }

@@ -48,32 +48,17 @@ func (mr *MockRepositoryMockRecorder) Close(ctx interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockRepository)(nil).Close), ctx)
 }
 
-// GetData mocks base method.
-func (m *MockRepository) GetData(ctx context.Context, table, engine, orderingColumn string, limit, offset int) ([]map[string]any, error) {
+// GetRows mocks base method.
+func (m *MockRepository) GetRows(ctx context.Context, table, orderingColumn string, columns []string, limit, offset int) ([]map[string]any, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetData", ctx, table, engine, orderingColumn, limit, offset)
+	ret := m.ctrl.Call(m, "GetRows", ctx, table, orderingColumn, columns, limit, offset)
 	ret0, _ := ret[0].([]map[string]any)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetData indicates an expected call of GetData.
-func (mr *MockRepositoryMockRecorder) GetData(ctx, table, engine, orderingColumn, limit, offset interface{}) *gomock.Call {
+// GetRows indicates an expected call of GetRows.
+func (mr *MockRepositoryMockRecorder) GetRows(ctx, table, orderingColumn, columns, limit, offset interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetData", reflect.TypeOf((*MockRepository)(nil).GetData), ctx, table, engine, orderingColumn, limit, offset)
-}
-
-// Login mocks base method.
-func (m *MockRepository) Login(ctx context.Context) (string, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Login", ctx)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Login indicates an expected call of Login.
-func (mr *MockRepositoryMockRecorder) Login(ctx interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockRepository)(nil).Login), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRows", reflect.TypeOf((*MockRepository)(nil).GetRows), ctx, table, orderingColumn, columns, limit, offset)
 }

@@ -79,6 +79,20 @@ func (mr *MockIteratorMockRecorder) Next(ctx interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Next", reflect.TypeOf((*MockIterator)(nil).Next), ctx)
 }
 
+// Setup mocks base method.
+func (m *MockIterator) Setup(ctx context.Context, p sdk.Position) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Setup", ctx, p)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Setup indicates an expected call of Setup.
+func (mr *MockIteratorMockRecorder) Setup(ctx, p interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Setup", reflect.TypeOf((*MockIterator)(nil).Setup), ctx, p)
+}
+
 // Stop mocks base method.
 func (m *MockIterator) Stop(ctx context.Context) error {
 	m.ctrl.T.Helper()

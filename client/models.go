@@ -12,19 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package source
+package client
 
-import (
-	"context"
-
-	sdk "github.com/conduitio/conduit-connector-sdk"
-)
-
-// Iterator interface.
-type Iterator interface {
-	Setup(ctx context.Context, p sdk.Position) error
-	HasNext(ctx context.Context) (bool, error)
-	Next(ctx context.Context) (sdk.Record, error)
-	Stop(ctx context.Context) error
-	Ack(rp sdk.Position) error
+// firebolt response after login request.
+type loginResponse struct {
+	AccessToken  string `json:"access_token"`
+	ExpiresIn    int    `json:"expires_in"`
+	RefreshToken string `json:"refresh_token"`
+	Scope        string `json:"scope"`
+	TokenType    string `json:"token_type"`
 }

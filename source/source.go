@@ -20,7 +20,10 @@ import (
 
 	sdk "github.com/conduitio/conduit-connector-sdk"
 
+	"github.com/conduitio-labs/conduit-connector-firebolt/client"
 	"github.com/conduitio-labs/conduit-connector-firebolt/config"
+	"github.com/conduitio-labs/conduit-connector-firebolt/repository"
+	"github.com/conduitio-labs/conduit-connector-firebolt/source/iterator"
 )
 
 // Source connector.
@@ -50,6 +53,25 @@ func (s *Source) Configure(ctx context.Context, cfgRaw map[string]string) error 
 
 // Open prepare the plugin to start sending records from the given position.
 func (s *Source) Open(ctx context.Context, rp sdk.Position) error {
+	cl := client.New(s.config.EngineEndpoint, s.config.DB)
+
+	err := cl.Login(ctx, s.config.Email, s.config.Password)
+	if err != nil {
+		return fmt.Errorf("client login: %w", err)
+	}
+
+	rep := repository.New(cl)
+
+	it := iterator.NewSnapshotIterator(rep, s.config.BatchSize, s.config.Columns, s.config.Table,
+		s.config.PrimaryKey, s.config.OrderingColumn)
+
+	err = it.Setup(ctx, rp)
+	if err != nil {
+		return fmt.Errorf("setup iterator: %w", err)
+	}
+
+	s.iterator = it
+
 	return nil
 }
 
