@@ -53,7 +53,7 @@ func (s *Source) Configure(ctx context.Context, cfgRaw map[string]string) error 
 
 // Open prepare the plugin to start sending records from the given position.
 func (s *Source) Open(ctx context.Context, rp sdk.Position) error {
-	cl := client.New(s.config.EngineEndpoint, s.config.DB)
+	cl := client.New(ctx, s.config.EngineEndpoint, s.config.DB)
 
 	err := cl.Login(ctx, s.config.Email, s.config.Password)
 	if err != nil {

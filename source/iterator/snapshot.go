@@ -73,7 +73,7 @@ func NewSnapshotIterator(
 }
 
 // Setup iterator.
-func (i SnapshotIterator) Setup(ctx context.Context, p sdk.Position) error {
+func (i *SnapshotIterator) Setup(ctx context.Context, p sdk.Position) error {
 	var index, batchID int
 
 	if p != nil {

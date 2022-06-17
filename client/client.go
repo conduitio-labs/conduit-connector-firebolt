@@ -22,6 +22,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	sdk "github.com/conduitio/conduit-connector-sdk"
 	"github.com/hashicorp/go-retryablehttp"
 )
 
@@ -39,9 +40,10 @@ type HTTPClient struct {
 	httpClient *http.Client
 }
 
-func New(databaseEngine, dbName string) *HTTPClient {
+func New(ctx context.Context, databaseEngine, dbName string) *HTTPClient {
 	retryClient := retryablehttp.NewClient()
 	retryClient.RetryMax = 3
+	retryClient.Logger = sdk.Logger(ctx)
 
 	return &HTTPClient{
 		databaseEngine: databaseEngine,
@@ -109,7 +111,7 @@ func (h *HTTPClient) RunQuery(ctx context.Context, query string) ([]byte, error)
 
 	resp, err := h.httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("do request")
+		return nil, fmt.Errorf("do request %w", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
