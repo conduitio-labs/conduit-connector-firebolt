@@ -109,6 +109,46 @@ func TestSource_Snapshot(t *testing.T) {
 	}
 }
 
+func TestSource_Snapshot_Empty_Table(t *testing.T) {
+	cfg, err := prepareConfig()
+	if err != nil {
+		t.Skip()
+	}
+
+	ctx := context.Background()
+
+	err = prepareEmptyTable(ctx, cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer clearData(ctx, cfg) // nolint:errcheck,nolintlint
+
+	s := new(Source)
+
+	err = s.Configure(ctx, cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Start first time with nil position.
+	err = s.Open(ctx, nil)
+	if err != nil {
+		t.Error(err)
+	}
+
+	// Check read from empty table.
+	_, err = s.Read(ctx)
+	if err != sdk.ErrBackoffRetry {
+		t.Error(err)
+	}
+
+	err = s.Teardown(ctx)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 func prepareConfig() (map[string]string, error) {
 	email := os.Getenv("FIREBOLT_EMAIL")
 	password := os.Getenv("FIREBOLT_PASSWORD")
@@ -164,6 +204,23 @@ func clearData(ctx context.Context, cfg map[string]string) error {
 
 	// drop table.
 	_, err = cl.RunQuery(ctx, queryDropTable)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func prepareEmptyTable(ctx context.Context, cfg map[string]string) error {
+	cl := client.New(ctx, cfg[config.KeyEngineEndpoint], cfg[config.KeyDB])
+
+	err := cl.Login(ctx, cfg[config.KeyEmail], cfg[config.KeyPassword])
+	if err != nil {
+		return fmt.Errorf("client login: %w", err)
+	}
+
+	// create table.
+	_, err = cl.RunQuery(ctx, queryCreateTable)
 	if err != nil {
 		return err
 	}
