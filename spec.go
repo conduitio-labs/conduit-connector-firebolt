@@ -78,5 +78,32 @@ func Specification() sdk.Specification {
 				Description: "Size of batch",
 			},
 		},
+		DestinationParams: map[string]sdk.Parameter{
+			config.KeyEmail: {
+				Default:     "",
+				Required:    true,
+				Description: "The Firebolt email account.",
+			},
+			config.KeyPassword: {
+				Default:     "",
+				Required:    true,
+				Description: "The Firebolt account password.",
+			},
+			config.KeyEngineEndpoint: {
+				Default:     "",
+				Required:    true,
+				Description: "The Firebolt database engine.",
+			},
+			config.KeyDB: {
+				Default:     "",
+				Required:    true,
+				Description: "The Firebolt database name.",
+			},
+			config.KeyTable: {
+				Default:     "",
+				Required:    true,
+				Description: "The Firebolt database table name.",
+			},
+		},
 	}
 }

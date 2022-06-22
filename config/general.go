@@ -46,7 +46,7 @@ type General struct {
 
 // Parse attempts to parse plugins.Config into a General struct.
 func ParseGeneral(cfg map[string]string) (General, error) {
-	common := General{
+	general := General{
 		Email:          cfg[KeyEmail],
 		Password:       cfg[KeyPassword],
 		EngineEndpoint: cfg[KeyEngineEndpoint],
@@ -54,9 +54,9 @@ func ParseGeneral(cfg map[string]string) (General, error) {
 		Table:          cfg[KeyTable],
 	}
 
-	if err := validator.Validate(common); err != nil {
+	if err := validator.Validate(general); err != nil {
 		return General{}, err
 	}
 
-	return common, nil
+	return general, nil
 }

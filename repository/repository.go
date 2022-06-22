@@ -52,6 +52,25 @@ func (f *Firebolt) GetRows(
 	return resp.Data, nil
 }
 
+// InsertRow inserts a row into a table, with the provided columns and values.
+func (f *Firebolt) InsertRow(ctx context.Context, table string, columns []string, values []any) error {
+	if len(columns) != len(values) {
+		return ErrColumnsValuesLenMismatch
+	}
+
+	query, err := buildInsertQuery(table, columns, values)
+	if err != nil {
+		return fmt.Errorf("build insert query: %w", err)
+	}
+
+	_, err = f.client.RunQuery(ctx, query)
+	if err != nil {
+		return fmt.Errorf("run query: %w", err)
+	}
+
+	return nil
+}
+
 func (f *Firebolt) Close(ctx context.Context) error {
 	f.client.Close(ctx)
 
@@ -73,4 +92,23 @@ func buildGetDataQuery(table, orderingColumn string, fields []string, offset, li
 	sb.OrderBy(orderingColumn)
 
 	return sb.String()
+}
+
+// buildInsertQuery generates an SQL INSERT statement query,
+// based on the provided table, columns and values.
+func buildInsertQuery(table string, columns []string, values []any) (string, error) {
+	sb := sqlbuilder.NewInsertBuilder()
+
+	sb.InsertInto(table)
+	sb.Cols(columns...)
+	sb.Values(values...)
+
+	sql, args := sb.BuildWithFlavor(sqlbuilder.PostgreSQL)
+
+	query, err := sqlbuilder.PostgreSQL.Interpolate(sql, args)
+	if err != nil {
+		return "", fmt.Errorf("interpolate arguments to SQL: %w", err)
+	}
+
+	return query, nil
 }
