@@ -34,9 +34,6 @@ func TestParseCommon(t *testing.T) {
 				KeyEngineEndpoint: "endpoint",
 				KeyDB:             "db",
 				KeyTable:          "test",
-				KeyPrimaryKey:     "id",
-				KeyBatchSize:      "100",
-				KeyOrderingColumn: "id",
 			},
 			want: Common{
 				Email:          "test@test.com",

@@ -38,13 +38,13 @@ type Common struct {
 	Password string `validate:"required"`
 	// EngineEndpoint - engine endpoint.
 	EngineEndpoint string `validate:"required"`
-	// DB name.
+	// DB - database name.
 	DB string `validate:"required"`
 	// Table name.
 	Table string `validate:"required"`
 }
 
-// Parse attempts to parse plugins.Config into a Config struct.
+// Parse attempts to parse plugins.Config into a Common struct.
 func ParseCommon(cfg map[string]string) (Common, error) {
 	common := Common{
 		Email:          cfg[KeyEmail],

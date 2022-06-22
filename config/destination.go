@@ -16,8 +16,6 @@ package config
 
 import (
 	"fmt"
-
-	"github.com/conduitio-labs/conduit-connector-firebolt/config/validator"
 )
 
 // Destination holds destination-related configurable values.
@@ -33,10 +31,6 @@ func ParseDestination(cfg map[string]string) (Destination, error) {
 	}
 
 	destination := Destination{common}
-
-	if err := validator.Validate(destination); err != nil {
-		return Destination{}, err
-	}
 
 	return destination, nil
 }
