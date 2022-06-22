@@ -17,11 +17,16 @@ package config
 import "github.com/conduitio-labs/conduit-connector-firebolt/config/validator"
 
 const (
-	KeyEmail          string = "email"
-	KeyPassword       string = "password"
+	// KeyEmail is a config name for a email.
+	KeyEmail string = "email"
+	// KeyPassword is a config name for a password.
+	KeyPassword string = "password"
+	// KeyEngineEndpoint is a config name for a engine endpoint.
 	KeyEngineEndpoint string = "engineEndpoint"
-	KeyDB             string = "db"
-	KeyTable          string = "table"
+	// KeyDB is a config name for a db.
+	KeyDB string = "db"
+	// KeyTable is a config name for a table.
+	KeyTable string = "table"
 )
 
 // Common represents configuration needed for Firebolt.

@@ -24,11 +24,16 @@ import (
 )
 
 const (
-	KeyColumns        string = "columns"
-	KeyBatchSize      string = "batchSize"
+	// KeyColumns is a config name for a list of columns.
+	KeyColumns string = "columns"
+	// KeyBatchSize is a config name for a batch size.
+	KeyBatchSize string = "batchSize"
+	// KeyOrderingColumn is a config name for a ordering column.
 	KeyOrderingColumn string = "orderingColumn"
-	KeyPrimaryKey     string = "primaryKey"
+	// KeyPrimaryKey is a config name for a primary key.
+	KeyPrimaryKey string = "primaryKey"
 
+	// defaultBatchSize is a default batch size.
 	defaultBatchSize = 100
 )
 
