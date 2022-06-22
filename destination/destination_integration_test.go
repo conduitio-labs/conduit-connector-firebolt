@@ -43,6 +43,9 @@ func TestDestination_Write_Success(t *testing.T) {
 
 	ctx := context.Background()
 
+	err = prepareTable(ctx, cfg)
+	is.NoErr(err)
+
 	d := new(Destination)
 
 	t.Cleanup(func() {
@@ -78,6 +81,9 @@ func TestDestination_Write_Failed(t *testing.T) {
 	}
 
 	ctx := context.Background()
+
+	err = prepareTable(ctx, cfg)
+	is.NoErr(err)
 
 	d := new(Destination)
 
