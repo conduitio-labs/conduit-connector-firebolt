@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package config
+package validator
 
 import (
 	"errors"
@@ -25,7 +25,7 @@ import (
 )
 
 // Validate validates the Config.
-func (c Config) Validate() error {
+func Validate(data any) error {
 	translator := en.New()
 	uni := ut.New(translator, translator)
 
@@ -41,7 +41,7 @@ func (c Config) Validate() error {
 	}
 
 	// collect all validation errors into one
-	if err := validate.Struct(c); err != nil {
+	if err := validate.Struct(data); err != nil {
 		var resultErr error
 		validationErrors := err.(validator.ValidationErrors)
 		for _, validationError := range validationErrors {
@@ -71,10 +71,46 @@ func registerTranslations(validate *validator.Validate, uniTranslator ut.Transla
 	}
 
 	// register a custom translation for the max tag
+	err = validate.RegisterTranslation("email", uniTranslator, func(ut ut.Translator) error {
+		return ut.Add("email", "\"{0}\" config value must be a valid url", true)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T("email", fe.Field())
+
+		return strings.ToLower(t)
+	})
+	if err != nil {
+		return err
+	}
+
+	// register a custom translation for the max tag
 	err = validate.RegisterTranslation("max", uniTranslator, func(ut ut.Translator) error {
 		return ut.Add("max", "\"{0}\" config value is too long", true)
 	}, func(ut ut.Translator, fe validator.FieldError) string {
 		t, _ := ut.T("max", fe.Field())
+
+		return strings.ToLower(t)
+	})
+	if err != nil {
+		return err
+	}
+
+	// register a custom translation for the max tag
+	err = validate.RegisterTranslation("gte", uniTranslator, func(ut ut.Translator) error {
+		return ut.Add("gte", "\"{0}\" config value must be greater than or equal to {1}", true)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T("gte", fe.Field(), fe.Param())
+
+		return strings.ToLower(t)
+	})
+	if err != nil {
+		return err
+	}
+
+	// register a custom translation for the max tag
+	err = validate.RegisterTranslation("lte", uniTranslator, func(ut ut.Translator) error {
+		return ut.Add("lte", "\"{0}\" config value must be less than or equal to {1}", true)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T("lte", fe.Field(), fe.Param())
 
 		return strings.ToLower(t)
 	})

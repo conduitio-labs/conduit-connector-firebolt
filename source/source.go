@@ -30,7 +30,7 @@ import (
 type Source struct {
 	sdk.UnimplementedSource
 
-	config   config.Config
+	config   config.Source
 	iterator Iterator
 }
 
@@ -41,7 +41,7 @@ func New() sdk.Source {
 
 // Configure parses and stores configurations, returns an error in case of invalid configuration.
 func (s *Source) Configure(ctx context.Context, cfgRaw map[string]string) error {
-	cfg, err := config.Parse(cfgRaw)
+	cfg, err := config.ParseSource(cfgRaw)
 	if err != nil {
 		return err
 	}
