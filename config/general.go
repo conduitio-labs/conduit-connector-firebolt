@@ -29,9 +29,9 @@ const (
 	KeyTable string = "table"
 )
 
-// Common represents configuration needed for Firebolt.
+// General represents configuration needed for Firebolt.
 // This values are shared between source and destination.
-type Common struct {
+type General struct {
 	// Email Firebolt account email.
 	Email string `validate:"required,email"`
 	// Password Firebolt account password.
@@ -44,9 +44,9 @@ type Common struct {
 	Table string `validate:"required"`
 }
 
-// Parse attempts to parse plugins.Config into a Common struct.
-func ParseCommon(cfg map[string]string) (Common, error) {
-	common := Common{
+// Parse attempts to parse plugins.Config into a General struct.
+func ParseGeneral(cfg map[string]string) (General, error) {
+	common := General{
 		Email:          cfg[KeyEmail],
 		Password:       cfg[KeyPassword],
 		EngineEndpoint: cfg[KeyEngineEndpoint],
@@ -55,7 +55,7 @@ func ParseCommon(cfg map[string]string) (Common, error) {
 	}
 
 	if err := validator.Validate(common); err != nil {
-		return Common{}, err
+		return General{}, err
 	}
 
 	return common, nil

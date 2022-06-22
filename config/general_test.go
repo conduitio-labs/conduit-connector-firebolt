@@ -19,11 +19,11 @@ import (
 	"testing"
 )
 
-func TestParseCommon(t *testing.T) {
+func TestParseGeneral(t *testing.T) {
 	tests := []struct {
 		name    string
 		cfg     map[string]string
-		want    Common
+		want    General
 		wantErr bool
 	}{
 		{
@@ -35,7 +35,7 @@ func TestParseCommon(t *testing.T) {
 				KeyDB:             "db",
 				KeyTable:          "test",
 			},
-			want: Common{
+			want: General{
 				Email:          "test@test.com",
 				Password:       "12345",
 				EngineEndpoint: "endpoint",
@@ -55,7 +55,7 @@ func TestParseCommon(t *testing.T) {
 				KeyBatchSize:      "20",
 				KeyColumns:        "id,name",
 			},
-			want:    Common{},
+			want:    General{},
 			wantErr: true,
 		},
 		{
@@ -69,7 +69,7 @@ func TestParseCommon(t *testing.T) {
 				KeyBatchSize:      "20",
 				KeyColumns:        "id,name",
 			},
-			want:    Common{},
+			want:    General{},
 			wantErr: true,
 		},
 		{
@@ -83,7 +83,7 @@ func TestParseCommon(t *testing.T) {
 				KeyBatchSize:      "20",
 				KeyColumns:        "id,name",
 			},
-			want:    Common{},
+			want:    General{},
 			wantErr: true,
 		},
 		{
@@ -97,14 +97,14 @@ func TestParseCommon(t *testing.T) {
 				KeyPrimaryKey:     "id",
 				KeyBatchSize:      "100",
 			},
-			want:    Common{},
+			want:    General{},
 			wantErr: true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := ParseCommon(tt.cfg)
+			got, err := ParseGeneral(tt.cfg)
 			if err != nil && !tt.wantErr {
 				t.Errorf("parse error = \"%s\", wantErr %t", err.Error(), tt.wantErr)
 

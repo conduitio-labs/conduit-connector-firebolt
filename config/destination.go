@@ -20,12 +20,12 @@ import (
 
 // Destination holds destination-related configurable values.
 type Destination struct {
-	Common
+	General
 }
 
 // ParseDestination attempts to parse plugins.Config into a Destination struct.
 func ParseDestination(cfg map[string]string) (Destination, error) {
-	common, err := ParseCommon(cfg)
+	common, err := ParseGeneral(cfg)
 	if err != nil {
 		return Destination{}, fmt.Errorf("parse common config: %w", err)
 	}

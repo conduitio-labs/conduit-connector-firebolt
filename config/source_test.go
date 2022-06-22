@@ -39,7 +39,7 @@ func TestParseSource(t *testing.T) {
 				KeyOrderingColumn: "id",
 			},
 			want: Source{
-				Common: Common{
+				General: General{
 					Email:          "test@test.com",
 					Password:       "12345",
 					EngineEndpoint: "endpoint",
@@ -65,7 +65,7 @@ func TestParseSource(t *testing.T) {
 				KeyOrderingColumn: "id",
 			},
 			want: Source{
-				Common: Common{
+				General: General{
 					Email:          "test@test.com",
 					Password:       "12345",
 					EngineEndpoint: "endpoint",
@@ -92,7 +92,7 @@ func TestParseSource(t *testing.T) {
 				KeyOrderingColumn: "id",
 			},
 			want: Source{
-				Common: Common{
+				General: General{
 					Email:          "test@test.com",
 					Password:       "12345",
 					EngineEndpoint: "endpoint",

@@ -39,7 +39,7 @@ const (
 
 // Source holds source-related configurable values.
 type Source struct {
-	Common
+	General
 
 	// List of columns from table, by default read all columns.
 	Columns []string
@@ -53,13 +53,13 @@ type Source struct {
 
 // ParseSource attempts to parse plugins.Config into a Source struct.
 func ParseSource(cfg map[string]string) (Source, error) {
-	common, err := ParseCommon(cfg)
+	general, err := ParseGeneral(cfg)
 	if err != nil {
-		return Source{}, fmt.Errorf("parse common config: %w", err)
+		return Source{}, fmt.Errorf("parse general config: %w", err)
 	}
 
 	source := Source{
-		Common:         common,
+		General:        general,
 		OrderingColumn: cfg[KeyOrderingColumn],
 		BatchSize:      defaultBatchSize,
 		PrimaryKey:     cfg[KeyPrimaryKey],
