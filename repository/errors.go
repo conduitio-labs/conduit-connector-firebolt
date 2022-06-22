@@ -12,20 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package repository
 
-import (
-	sdk "github.com/conduitio/conduit-connector-sdk"
+import "errors"
 
-	firebolt "github.com/conduitio-labs/conduit-connector-firebolt"
-	"github.com/conduitio-labs/conduit-connector-firebolt/destination"
-	"github.com/conduitio-labs/conduit-connector-firebolt/source"
-)
-
-func main() {
-	sdk.Serve(sdk.Connector{
-		NewSpecification: firebolt.Specification,
-		NewSource:        source.New,
-		NewDestination:   destination.New,
-	})
-}
+// ErrColumnsValuesLenMismatch occurs when trying to insert a row with a different column and value lengths.
+var ErrColumnsValuesLenMismatch = errors.New("number of columns must be equal to number of values")

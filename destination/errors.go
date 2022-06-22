@@ -12,20 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package destination
 
-import (
-	sdk "github.com/conduitio/conduit-connector-sdk"
+import "errors"
 
-	firebolt "github.com/conduitio-labs/conduit-connector-firebolt"
-	"github.com/conduitio-labs/conduit-connector-firebolt/destination"
-	"github.com/conduitio-labs/conduit-connector-firebolt/source"
-)
-
-func main() {
-	sdk.Serve(sdk.Connector{
-		NewSpecification: firebolt.Specification,
-		NewSource:        source.New,
-		NewDestination:   destination.New,
-	})
-}
+// ErrEmptyPayload occurs when there's no payload to insert.
+var ErrEmptyPayload = errors.New("payload is empty")
