@@ -40,7 +40,7 @@ type Common struct {
 	EngineEndpoint string `validate:"required"`
 	// DB - database name.
 	DB string `validate:"required"`
-	// Table name.
+	// Table - database table name.
 	Table string `validate:"required"`
 }
 
