@@ -109,13 +109,14 @@ func TestParseSource(t *testing.T) {
 		{
 			name: "invalid config, invalid batchSize",
 			cfg: map[string]string{
-				KeyEmail:          "test@test,com",
+				KeyEmail:          "test@test.com",
 				KeyPassword:       "12345",
 				KeyEngineEndpoint: "endpoint",
 				KeyDB:             "db",
 				KeyTable:          "test",
 				KeyPrimaryKey:     "id",
-				KeyBatchSize:      "test",
+				KeyBatchSize:      "984579579",
+				KeyOrderingColumn: "id",
 			},
 			want:    Source{},
 			wantErr: true,
