@@ -19,11 +19,11 @@ import (
 	"testing"
 )
 
-func TestParse(t *testing.T) {
+func TestParseSource(t *testing.T) {
 	tests := []struct {
 		name    string
 		cfg     map[string]string
-		want    Config
+		want    Source
 		wantErr bool
 	}{
 		{
@@ -38,15 +38,17 @@ func TestParse(t *testing.T) {
 				KeyBatchSize:      "100",
 				KeyOrderingColumn: "id",
 			},
-			want: Config{
-				Email:          "test@test.com",
-				Password:       "12345",
-				EngineEndpoint: "endpoint",
-				DB:             "db",
-				Table:          "test",
-				PrimaryKey:     "id",
+			want: Source{
+				Common: Common{
+					Email:          "test@test.com",
+					Password:       "12345",
+					EngineEndpoint: "endpoint",
+					DB:             "db",
+					Table:          "test",
+				},
 				BatchSize:      100,
 				OrderingColumn: "id",
+				PrimaryKey:     "id",
 			},
 			wantErr: false,
 		},
@@ -62,15 +64,17 @@ func TestParse(t *testing.T) {
 				KeyBatchSize:      "20",
 				KeyOrderingColumn: "id",
 			},
-			want: Config{
-				Email:          "test@test.com",
-				Password:       "12345",
-				EngineEndpoint: "endpoint",
-				DB:             "db",
-				Table:          "test",
-				PrimaryKey:     "id",
+			want: Source{
+				Common: Common{
+					Email:          "test@test.com",
+					Password:       "12345",
+					EngineEndpoint: "endpoint",
+					DB:             "db",
+					Table:          "test",
+				},
 				BatchSize:      20,
 				OrderingColumn: "id",
+				PrimaryKey:     "id",
 			},
 			wantErr: false,
 		},
@@ -87,74 +91,20 @@ func TestParse(t *testing.T) {
 				KeyColumns:        "id,name",
 				KeyOrderingColumn: "id",
 			},
-			want: Config{
-				Email:          "test@test.com",
-				Password:       "12345",
-				EngineEndpoint: "endpoint",
-				DB:             "db",
-				Table:          "test",
-				PrimaryKey:     "id",
+			want: Source{
+				Common: Common{
+					Email:          "test@test.com",
+					Password:       "12345",
+					EngineEndpoint: "endpoint",
+					DB:             "db",
+					Table:          "test",
+				},
 				BatchSize:      20,
 				Columns:        []string{"id", "name"},
 				OrderingColumn: "id",
+				PrimaryKey:     "id",
 			},
 			wantErr: false,
-		},
-		{
-			name: "invalid config, missed email",
-			cfg: map[string]string{
-				KeyPassword:       "12345",
-				KeyEngineEndpoint: "endpoint",
-				KeyDB:             "db",
-				KeyTable:          "test",
-				KeyPrimaryKey:     "id",
-				KeyBatchSize:      "20",
-				KeyColumns:        "id,name",
-			},
-			want:    Config{},
-			wantErr: true,
-		},
-		{
-			name: "invalid config, missed password",
-			cfg: map[string]string{
-				KeyEmail:          "test@test.com",
-				KeyEngineEndpoint: "endpoint",
-				KeyDB:             "db",
-				KeyTable:          "test",
-				KeyPrimaryKey:     "id",
-				KeyBatchSize:      "20",
-				KeyColumns:        "id,name",
-			},
-			want:    Config{},
-			wantErr: true,
-		},
-		{
-			name: "invalid config, missed db",
-			cfg: map[string]string{
-				KeyEmail:          "test@test.com",
-				KeyPassword:       "12345",
-				KeyEngineEndpoint: "endpoint",
-				KeyTable:          "test",
-				KeyPrimaryKey:     "id",
-				KeyBatchSize:      "20",
-				KeyColumns:        "id,name",
-			},
-			want:    Config{},
-			wantErr: true,
-		},
-		{
-			name: "invalid config, invalid email",
-			cfg: map[string]string{
-				KeyEmail:          "test",
-				KeyPassword:       "12345",
-				KeyEngineEndpoint: "endpoint",
-				KeyDB:             "db",
-				KeyTable:          "test",
-				KeyPrimaryKey:     "id",
-				KeyBatchSize:      "100",
-			},
-			want:    Config{},
-			wantErr: true,
 		},
 		{
 			name: "invalid config, invalid batchSize",
@@ -167,7 +117,7 @@ func TestParse(t *testing.T) {
 				KeyPrimaryKey:     "id",
 				KeyBatchSize:      "test",
 			},
-			want:    Config{},
+			want:    Source{},
 			wantErr: true,
 		},
 		{
@@ -181,14 +131,29 @@ func TestParse(t *testing.T) {
 				KeyPrimaryKey:     "id",
 				KeyBatchSize:      "100",
 			},
-			want:    Config{},
+			want:    Source{},
+			wantErr: true,
+		},
+		{
+			name: "invalid config, missed primary key",
+			cfg: map[string]string{
+				KeyEmail:          "test@test.com",
+				KeyPassword:       "12345",
+				KeyEngineEndpoint: "endpoint",
+				KeyDB:             "db",
+				KeyTable:          "test",
+				KeyBatchSize:      "20",
+				KeyColumns:        "id,name",
+				KeyOrderingColumn: "id",
+			},
+			want:    Source{},
 			wantErr: true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := Parse(tt.cfg)
+			got, err := ParseSource(tt.cfg)
 			if err != nil && !tt.wantErr {
 				t.Errorf("parse error = \"%s\", wantErr %t", err.Error(), tt.wantErr)
 

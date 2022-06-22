@@ -14,11 +14,7 @@
 
 package config
 
-import (
-	"errors"
-	"strconv"
-	"strings"
-)
+import "github.com/conduitio-labs/conduit-connector-firebolt/config/validator"
 
 const (
 	KeyEmail          string = "email"
@@ -26,74 +22,36 @@ const (
 	KeyEngineEndpoint string = "engineEndpoint"
 	KeyDB             string = "db"
 	KeyTable          string = "table"
-	KeyColumns        string = "columns"
-	KeyPrimaryKey     string = "primaryKey"
-	KeyBatchSize      string = "batchSize"
-	KeyOrderingColumn string = "orderingColumn"
-
-	defaultBatchSize = 100
 )
 
-// Config represents configuration needed for Firebolt.
-type Config struct {
+// Common represents configuration needed for Firebolt.
+// This values are shared between source and destination.
+type Common struct {
 	// Email Firebolt account email.
 	Email string `validate:"required,email"`
-
 	// Password Firebolt account password.
 	Password string `validate:"required"`
-
 	// EngineEndpoint - engine endpoint.
 	EngineEndpoint string `validate:"required"`
-
 	// DB name.
 	DB string `validate:"required"`
-
 	// Table name.
 	Table string `validate:"required"`
-
-	// List of columns from table, by default read all columns.
-	Columns []string
-
-	// Key - Column name that records should use for their `Key` fields.
-	PrimaryKey string `validate:"required"`
-
-	// BatchSize - size of batch.
-	BatchSize int `validate:"gte=1,lte=100"`
-
-	// OrderingColumn - column which using for ordering for snapshot iterator.
-	OrderingColumn string `validate:"required"`
 }
 
 // Parse attempts to parse plugins.Config into a Config struct.
-func Parse(cfg map[string]string) (Config, error) {
-	config := Config{
+func ParseCommon(cfg map[string]string) (Common, error) {
+	common := Common{
 		Email:          cfg[KeyEmail],
 		Password:       cfg[KeyPassword],
 		EngineEndpoint: cfg[KeyEngineEndpoint],
 		DB:             cfg[KeyDB],
 		Table:          cfg[KeyTable],
-		PrimaryKey:     cfg[KeyPrimaryKey],
-		OrderingColumn: cfg[KeyOrderingColumn],
-		BatchSize:      defaultBatchSize,
 	}
 
-	if colsRaw := cfg[KeyColumns]; colsRaw != "" {
-		config.Columns = strings.Split(colsRaw, ",")
+	if err := validator.Validate(common); err != nil {
+		return Common{}, err
 	}
 
-	if cfg[KeyBatchSize] != "" {
-		batchSize, err := strconv.Atoi(cfg[KeyBatchSize])
-		if err != nil {
-			return Config{}, errors.New(`"batchSize" config value must be int`)
-		}
-
-		config.BatchSize = batchSize
-	}
-
-	err := config.Validate()
-	if err != nil {
-		return Config{}, err
-	}
-
-	return config, nil
+	return common, nil
 }

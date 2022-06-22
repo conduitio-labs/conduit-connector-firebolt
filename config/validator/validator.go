@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package config
+package validator
 
 import (
 	"errors"
@@ -25,7 +25,7 @@ import (
 )
 
 // Validate validates the Config.
-func (c Config) Validate() error {
+func Validate(data any) error {
 	translator := en.New()
 	uni := ut.New(translator, translator)
 
@@ -41,7 +41,7 @@ func (c Config) Validate() error {
 	}
 
 	// collect all validation errors into one
-	if err := validate.Struct(c); err != nil {
+	if err := validate.Struct(data); err != nil {
 		var resultErr error
 		validationErrors := err.(validator.ValidationErrors)
 		for _, validationError := range validationErrors {
