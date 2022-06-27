@@ -14,6 +14,12 @@
 
 package client
 
+// loginRequest is a request model for the login route.
+type loginRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
 // firebolt response after login request.
 type loginResponse struct {
 	AccessToken  string `json:"access_token"`
@@ -21,4 +27,9 @@ type loginResponse struct {
 	RefreshToken string `json:"refresh_token"`
 	Scope        string `json:"scope"`
 	TokenType    string `json:"token_type"`
+}
+
+// refreshTokenRequest is a request model for the refresh token route.
+type refreshTokenRequest struct {
+	RefreshToken string `json:"refresh_token"`
 }
