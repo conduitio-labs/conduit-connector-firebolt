@@ -100,11 +100,12 @@ func TestDestination_Write_Failed(t *testing.T) {
 
 	err = d.Write(ctx, sdk.Record{
 		Payload: sdk.StructuredData{
+			// non-existent column "name"
 			"name": "bob",
 			"test": "hellp",
 		},
 	})
-	is.Equal(err, nil)
+	is.Equal(err != nil, true)
 
 	err = d.Teardown(ctx)
 	is.NoErr(err)
