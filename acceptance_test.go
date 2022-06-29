@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -33,32 +34,37 @@ import (
 )
 
 const (
-	queryCreateTable = "CREATE DIMENSION TABLE %s (id INT, test TEXT)"
+	queryCreateTable = "CREATE DIMENSION TABLE %s (id INT, name TEXT)"
 	queryDropTable   = "DROP TABLE IF EXISTS %s"
+
+	metadataAction = "action"
+	actionInsert   = "insertValue"
 )
 
 type driver struct {
 	sdk.ConfigurableAcceptanceTestDriver
+
+	counter int64
 }
 
 // GenerateRecord generates a random sdk.Record.
-func (d driver) GenerateRecord(t *testing.T) sdk.Record {
-	id := gofakeit.Uint16()
+func (d *driver) GenerateRecord(t *testing.T) sdk.Record {
+	atomic.AddInt64(&d.counter, 1)
 
 	return sdk.Record{
 		Position: nil,
 		Metadata: map[string]string{
-			"action":        "insertValue",
+			metadataAction:  actionInsert,
 			config.KeyTable: d.Config.DestinationConfig[config.KeyTable],
 		},
 		Key: sdk.StructuredData{
 			// convert to float64, since the connector will unmarhsal the value into "any" as float64
 			// see https://pkg.go.dev/encoding/json#Unmarshal
-			"id": float64(id),
+			"id": float64(d.counter),
 		},
 		Payload: sdk.RawData(
 			fmt.Sprintf(
-				`{"id":%d,"test":"%s"}`, id, gofakeit.Name(),
+				`{"id":%d,"name":"%s"}`, d.counter, gofakeit.Name(),
 			),
 		),
 	}
@@ -67,7 +73,7 @@ func (d driver) GenerateRecord(t *testing.T) sdk.Record {
 func TestAcceptance(t *testing.T) {
 	cfg := prepareConfig(t)
 
-	sdk.AcceptanceTest(t, driver{
+	sdk.AcceptanceTest(t, &driver{
 		ConfigurableAcceptanceTestDriver: sdk.ConfigurableAcceptanceTestDriver{
 			Config: sdk.ConfigurableAcceptanceTestDriverConfig{
 				Connector: sdk.Connector{
