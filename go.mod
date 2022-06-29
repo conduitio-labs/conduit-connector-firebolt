@@ -3,6 +3,7 @@ module github.com/conduitio-labs/conduit-connector-firebolt
 go 1.18
 
 require (
+	github.com/brianvoe/gofakeit v3.18.0+incompatible
 	github.com/conduitio/conduit-connector-sdk v0.2.1-0.20220530152250-733149cddc0b
 	github.com/go-playground/locales v0.14.0
 	github.com/go-playground/universal-translator v0.18.0
@@ -11,6 +12,7 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.1
 	github.com/huandu/go-sqlbuilder v1.13.0
 	github.com/matryer/is v1.4.0
+	go.uber.org/goleak v1.1.12
 	go.uber.org/multierr v1.8.0
 )
 
@@ -32,7 +34,6 @@ require (
 	github.com/rs/zerolog v1.27.0 // indirect
 	go.buf.build/library/go-grpc/conduitio/conduit-connector-protocol v1.4.2 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
-	go.uber.org/goleak v1.1.12 // indirect
 	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
 	golang.org/x/net v0.0.0-20220621193019-9d032be2e588 // indirect
 	golang.org/x/sys v0.0.0-20220615213510-4f61da869c0c // indirect

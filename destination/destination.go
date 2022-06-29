@@ -73,5 +73,9 @@ func (d *Destination) Write(ctx context.Context, record sdk.Record) error {
 
 // Teardown gracefully closes connections.
 func (d *Destination) Teardown(ctx context.Context) error {
-	return d.writer.Close(ctx)
+	if d.writer != nil {
+		return d.writer.Close(ctx)
+	}
+
+	return nil
 }
