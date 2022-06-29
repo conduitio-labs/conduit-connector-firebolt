@@ -104,23 +104,12 @@ func beforeTest(t *testing.T, cfg map[string]string) func(t *testing.T) {
 
 func prepareConfig(t *testing.T) map[string]string {
 	email := os.Getenv("FIREBOLT_EMAIL")
-	if email == "" {
-		t.Skip("FIREBOLT_EMAIL env var must be set")
-	}
-
 	password := os.Getenv("FIREBOLT_PASSWORD")
-	if password == "" {
-		t.Skip("FIREBOLT_PASSWORD env var must be set")
-	}
-
 	databaseEngine := os.Getenv("FIREBOLT_DATABASE_ENGINE")
-	if databaseEngine == "" {
-		t.Skip("FIREBOLT_DATABASE_ENGINE env var must be set")
-	}
-
 	db := os.Getenv("FIREBOLT_DB")
-	if db == "" {
-		t.Skip("FIREBOLT_DB env var must be set")
+
+	if email == "" || password == "" || databaseEngine == "" || db == "" {
+		t.Skip("missed env variable")
 	}
 
 	cfg := map[string]string{
