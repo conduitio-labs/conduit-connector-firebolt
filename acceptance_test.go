@@ -85,6 +85,8 @@ func TestAcceptance(t *testing.T) {
 				DestinationConfig: cfg,
 				BeforeTest:        beforeTest(t, cfg),
 				GoleakOptions: []goleak.Option{
+					// the problem with leak goroutines is related to
+					// KeepAlive and TLSHandshake timeouts in go-retryablehttp's Dialer.
 					goleak.IgnoreTopFunction("internal/poll.runtime_pollWait"),
 				},
 			},
