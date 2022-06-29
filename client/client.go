@@ -30,6 +30,9 @@ const (
 	loginURL = "https://api.app.firebolt.io/auth/v1/login"
 	//nolint:gosec // refreshTokenURL is a public url, we don't need to hide it
 	refreshTokenURL = "https://api.app.firebolt.io/auth/v1/refresh"
+
+	// retryMax is the maximum number of retries.
+	retryMax = 3
 )
 
 // HTTPClient client for calls to firebolt.
@@ -49,7 +52,7 @@ func New(ctx context.Context, databaseEngine, dbName string) *HTTPClient {
 	}
 
 	retryClient := retryablehttp.NewClient()
-	retryClient.RetryMax = 3
+	retryClient.RetryMax = retryMax
 	retryClient.Logger = sdk.Logger(ctx)
 	retryClient.CheckRetry = client.checkRetry
 	client.httpClient = retryClient.StandardClient()
@@ -91,9 +94,8 @@ func (h *HTTPClient) Login(ctx context.Context, email, password string) error {
 	}
 
 	var loginResponse loginResponse
-
 	if err = json.Unmarshal(body, &loginResponse); err != nil {
-		return fmt.Errorf("unmarshal login response")
+		return fmt.Errorf("unmarshal login response: %w", err)
 	}
 
 	h.accessToken = loginResponse.AccessToken
