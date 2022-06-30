@@ -1,5 +1,23 @@
 # Conduit Connector Firebolt
 
+## General
+
+The Firebolt connector is one of Conduit plugins. It provides both, a source and a destination Firebolt connector.
+
+### Prerequisites
+
+- [Go](https://go.dev/) 1.18
+- (optional) [golangci-lint](https://github.com/golangci/golangci-lint) 1.45.2
+- Firebolt ([May 11, 2022 version](https://docs.firebolt.io/general-reference/release-notes-archive.html#may-11-2022))
+
+### How to build it
+
+Run `make`
+
+### Testing
+
+Run `make test` to run all the unit and integration tests. The integration tests require `FIREBOLT_EMAIL`, `FIREBOLT_PASSWORD`, `FIREBOLT_DATABASE_ENGINE`, `FIREBOLT_DB` environment variables to be set.
+
 ## Destination
 
 The Firebolt Destination takes a `sdk.Record` and parses it into a valid SQL query. When a SQL query is constructed the connector sends an HTTP request to your preconfigured Firebolt engine endpoint. The Destination is designed to handle different payloads and keys.
