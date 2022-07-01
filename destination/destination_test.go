@@ -38,52 +38,57 @@ func TestDestination_Configure(t *testing.T) {
 		{
 			name: "valid config",
 			cfg: map[string]string{
-				config.KeyEmail:          "test@test.com",
-				config.KeyPassword:       "12345",
-				config.KeyEngineEndpoint: "endpoint",
-				config.KeyDB:             "db",
-				config.KeyTable:          "test",
+				config.KeyEmail:       "test@test.com",
+				config.KeyPassword:    "12345",
+				config.KeyAccountName: "super_account",
+				config.KeyEngineName:  "super_engine",
+				config.KeyDB:          "db",
+				config.KeyTable:       "test",
 			},
 			wantErr: false,
 		},
 		{
 			name: "invalid config, missed email",
 			cfg: map[string]string{
-				config.KeyPassword:       "12345",
-				config.KeyEngineEndpoint: "endpoint",
-				config.KeyDB:             "db",
-				config.KeyTable:          "test",
+				config.KeyPassword:    "12345",
+				config.KeyAccountName: "super_account",
+				config.KeyEngineName:  "super_engine",
+				config.KeyDB:          "db",
+				config.KeyTable:       "test",
 			},
 			wantErr: true,
 		},
 		{
 			name: "invalid config, missed password",
 			cfg: map[string]string{
-				config.KeyEmail:          "test@test.com",
-				config.KeyEngineEndpoint: "endpoint",
-				config.KeyDB:             "db",
-				config.KeyTable:          "test",
+				config.KeyEmail:       "test@test.com",
+				config.KeyAccountName: "super_account",
+				config.KeyEngineName:  "super_engine",
+				config.KeyDB:          "db",
+				config.KeyTable:       "test",
 			},
 			wantErr: true,
 		},
 		{
 			name: "invalid config, missed db",
 			cfg: map[string]string{
-				config.KeyEmail:          "test@test.com",
-				config.KeyPassword:       "12345",
-				config.KeyEngineEndpoint: "endpoint",
-				config.KeyTable:          "test",
+				config.KeyEmail:       "test@test.com",
+				config.KeyPassword:    "12345",
+				config.KeyAccountName: "super_account",
+				config.KeyEngineName:  "super_engine",
+				config.KeyTable:       "test",
 			},
 			wantErr: true,
 		},
 		{
 			name: "invalid config, invalid email",
 			cfg: map[string]string{
-				config.KeyEmail:          "test",
-				config.KeyPassword:       "12345",
-				config.KeyEngineEndpoint: "endpoint",
-				config.KeyDB:             "db",
-				config.KeyTable:          "test",
+				config.KeyEmail:       "test",
+				config.KeyPassword:    "12345",
+				config.KeyAccountName: "super_account",
+				config.KeyEngineName:  "super_engine",
+				config.KeyDB:          "db",
+				config.KeyTable:       "test",
 			},
 			wantErr: true,
 		},
@@ -117,11 +122,15 @@ func TestDestination_Write(t *testing.T) {
 			Payload:   st,
 		}
 
+		fc := mock.NewMockFireboltClient(ctrl)
+		fc.EXPECT().IsEngineStarted(ctx).Return(true, nil)
+
 		w := mock.NewMockWriter(ctrl)
 		w.EXPECT().InsertRecord(ctx, record).Return(nil)
 
 		d := Destination{
-			writer: w,
+			writer:         w,
+			fireboltClient: fc,
 		}
 
 		err := d.Write(ctx, record)
@@ -134,11 +143,32 @@ func TestDestination_Write(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		ctx := context.Background()
 
+		fc := mock.NewMockFireboltClient(ctrl)
+		fc.EXPECT().IsEngineStarted(ctx).Return(true, nil)
+
 		w := mock.NewMockWriter(ctrl)
 		w.EXPECT().InsertRecord(ctx, sdk.Record{}).Return(writer.ErrEmptyPayload)
 
 		d := Destination{
-			writer: w,
+			writer:         w,
+			fireboltClient: fc,
+		}
+
+		err := d.Write(ctx, sdk.Record{})
+		if err == nil {
+			t.Errorf("want error")
+		}
+	})
+
+	t.Run("failed_is_engine_started", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		ctx := context.Background()
+
+		fc := mock.NewMockFireboltClient(ctrl)
+		fc.EXPECT().IsEngineStarted(ctx).Return(false, errors.New("something bad happened"))
+
+		d := Destination{
+			fireboltClient: fc,
 		}
 
 		err := d.Write(ctx, sdk.Record{})

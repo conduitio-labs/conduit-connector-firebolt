@@ -41,7 +41,8 @@ func TestSource_Configure(t *testing.T) {
 			cfg: map[string]string{
 				config.KeyEmail:          "test@test.com",
 				config.KeyPassword:       "12345",
-				config.KeyEngineEndpoint: "endpoint",
+				config.KeyAccountName:    "super_account",
+				config.KeyEngineName:     "super_engine",
 				config.KeyDB:             "db",
 				config.KeyTable:          "test",
 				config.KeyPrimaryKey:     "id",
@@ -55,7 +56,8 @@ func TestSource_Configure(t *testing.T) {
 			cfg: map[string]string{
 				config.KeyEmail:          "test@test.com",
 				config.KeyPassword:       "12345",
-				config.KeyEngineEndpoint: "endpoint",
+				config.KeyAccountName:    "super_account",
+				config.KeyEngineName:     "super_engine",
 				config.KeyDB:             "db",
 				config.KeyTable:          "test",
 				config.KeyPrimaryKey:     "id",
@@ -67,78 +69,84 @@ func TestSource_Configure(t *testing.T) {
 		{
 			name: "invalid config, missed email",
 			cfg: map[string]string{
-				config.KeyPassword:       "12345",
-				config.KeyEngineEndpoint: "endpoint",
-				config.KeyDB:             "db",
-				config.KeyTable:          "test",
-				config.KeyPrimaryKey:     "id",
-				config.KeyBatchSize:      "20",
-				config.KeyColumns:        "id,name",
+				config.KeyPassword:    "12345",
+				config.KeyAccountName: "super_account",
+				config.KeyEngineName:  "super_engine",
+				config.KeyDB:          "db",
+				config.KeyTable:       "test",
+				config.KeyPrimaryKey:  "id",
+				config.KeyBatchSize:   "20",
+				config.KeyColumns:     "id,name",
 			},
 			wantErr: true,
 		},
 		{
 			name: "invalid config, missed password",
 			cfg: map[string]string{
-				config.KeyEmail:          "test@test.com",
-				config.KeyEngineEndpoint: "endpoint",
-				config.KeyDB:             "db",
-				config.KeyTable:          "test",
-				config.KeyPrimaryKey:     "id",
-				config.KeyBatchSize:      "20",
-				config.KeyColumns:        "id,name",
+				config.KeyEmail:       "test@test.com",
+				config.KeyAccountName: "super_account",
+				config.KeyEngineName:  "super_engine",
+				config.KeyDB:          "db",
+				config.KeyTable:       "test",
+				config.KeyPrimaryKey:  "id",
+				config.KeyBatchSize:   "20",
+				config.KeyColumns:     "id,name",
 			},
 			wantErr: true,
 		},
 		{
 			name: "invalid config, missed db",
 			cfg: map[string]string{
-				config.KeyEmail:          "test@test.com",
-				config.KeyPassword:       "12345",
-				config.KeyEngineEndpoint: "endpoint",
-				config.KeyTable:          "test",
-				config.KeyPrimaryKey:     "id",
-				config.KeyBatchSize:      "20",
-				config.KeyColumns:        "id,name",
+				config.KeyEmail:       "test@test.com",
+				config.KeyPassword:    "12345",
+				config.KeyAccountName: "super_account",
+				config.KeyEngineName:  "super_engine",
+				config.KeyTable:       "test",
+				config.KeyPrimaryKey:  "id",
+				config.KeyBatchSize:   "20",
+				config.KeyColumns:     "id,name",
 			},
 			wantErr: true,
 		},
 		{
 			name: "invalid config, invalid email",
 			cfg: map[string]string{
-				config.KeyEmail:          "test",
-				config.KeyPassword:       "12345",
-				config.KeyEngineEndpoint: "endpoint",
-				config.KeyDB:             "db",
-				config.KeyTable:          "test",
-				config.KeyPrimaryKey:     "id",
-				config.KeyBatchSize:      "100",
+				config.KeyEmail:       "test",
+				config.KeyPassword:    "12345",
+				config.KeyAccountName: "super_account",
+				config.KeyEngineName:  "super_engine",
+				config.KeyDB:          "db",
+				config.KeyTable:       "test",
+				config.KeyPrimaryKey:  "id",
+				config.KeyBatchSize:   "100",
 			},
 			wantErr: true,
 		},
 		{
 			name: "invalid config, invalid batchSize",
 			cfg: map[string]string{
-				config.KeyEmail:          "test@test,com",
-				config.KeyPassword:       "12345",
-				config.KeyEngineEndpoint: "endpoint",
-				config.KeyDB:             "db",
-				config.KeyTable:          "test",
-				config.KeyPrimaryKey:     "id",
-				config.KeyBatchSize:      "test",
+				config.KeyEmail:       "test@test,com",
+				config.KeyPassword:    "12345",
+				config.KeyAccountName: "super_account",
+				config.KeyEngineName:  "super_engine",
+				config.KeyDB:          "db",
+				config.KeyTable:       "test",
+				config.KeyPrimaryKey:  "id",
+				config.KeyBatchSize:   "test",
 			},
 			wantErr: true,
 		},
 		{
 			name: "invalid config, missed ordering column",
 			cfg: map[string]string{
-				config.KeyEmail:          "test@test.com",
-				config.KeyPassword:       "12345",
-				config.KeyEngineEndpoint: "endpoint",
-				config.KeyDB:             "db",
-				config.KeyTable:          "test",
-				config.KeyPrimaryKey:     "id",
-				config.KeyBatchSize:      "100",
+				config.KeyEmail:       "test@test.com",
+				config.KeyPassword:    "12345",
+				config.KeyAccountName: "super_account",
+				config.KeyEngineName:  "super_engine",
+				config.KeyDB:          "db",
+				config.KeyTable:       "test",
+				config.KeyPrimaryKey:  "id",
+				config.KeyBatchSize:   "100",
 			},
 			wantErr: true,
 		},
@@ -172,12 +180,17 @@ func TestSource_Read(t *testing.T) {
 			Payload:   st,
 		}
 
+		fc := mock.NewMockFireboltClient(ctrl)
+		fc.EXPECT().IsEngineStarted(ctx).Return(true, nil)
+
 		it := mock.NewMockIterator(ctrl)
 		it.EXPECT().HasNext(ctx).Return(true, nil)
 		it.EXPECT().Next(ctx).Return(record, nil)
 
 		s := Source{
-			iterator: it,
+			iterator:        it,
+			fireboltClient:  fc,
+			isIteratorSetup: true,
 		}
 
 		r, err := s.Read(ctx)
@@ -194,11 +207,16 @@ func TestSource_Read(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		ctx := context.Background()
 
+		fc := mock.NewMockFireboltClient(ctrl)
+		fc.EXPECT().IsEngineStarted(ctx).Return(true, nil)
+
 		it := mock.NewMockIterator(ctrl)
 		it.EXPECT().HasNext(ctx).Return(true, errors.New("get data: failed"))
 
 		s := Source{
-			iterator: it,
+			iterator:        it,
+			fireboltClient:  fc,
+			isIteratorSetup: true,
 		}
 
 		_, err := s.Read(ctx)
@@ -211,12 +229,60 @@ func TestSource_Read(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		ctx := context.Background()
 
+		fc := mock.NewMockFireboltClient(ctrl)
+		fc.EXPECT().IsEngineStarted(ctx).Return(true, nil)
+
 		it := mock.NewMockIterator(ctrl)
 		it.EXPECT().HasNext(ctx).Return(true, nil)
 		it.EXPECT().Next(ctx).Return(sdk.Record{}, errors.New("key is not exist"))
 
 		s := Source{
-			iterator: it,
+			iterator:        it,
+			fireboltClient:  fc,
+			isIteratorSetup: true,
+		}
+
+		_, err := s.Read(ctx)
+		if err == nil {
+			t.Errorf("want error")
+		}
+	})
+
+	t.Run("failed_is_engine_started", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		ctx := context.Background()
+
+		fc := mock.NewMockFireboltClient(ctrl)
+		fc.EXPECT().IsEngineStarted(ctx).Return(false, errors.New("something bad happen"))
+
+		s := Source{
+			fireboltClient:  fc,
+			isIteratorSetup: false,
+		}
+
+		_, err := s.Read(ctx)
+		if err == nil {
+			t.Errorf("want error")
+		}
+	})
+
+	t.Run("failed_iterator_setup", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		ctx := context.Background()
+
+		fc := mock.NewMockFireboltClient(ctrl)
+		fc.EXPECT().IsEngineStarted(ctx).Return(true, nil)
+
+		initialPosition := sdk.Position([]byte("random"))
+
+		it := mock.NewMockIterator(ctrl)
+		it.EXPECT().Setup(ctx, initialPosition).Return(errors.New("something went wrong"))
+
+		s := Source{
+			iterator:        it,
+			fireboltClient:  fc,
+			isIteratorSetup: false,
+			initialPosition: initialPosition,
 		}
 
 		_, err := s.Read(ctx)

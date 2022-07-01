@@ -20,9 +20,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/conduitio-labs/conduit-connector-firebolt/client"
-	"github.com/conduitio-labs/conduit-connector-firebolt/config"
-	"github.com/conduitio-labs/conduit-connector-firebolt/repository"
 	sdk "github.com/conduitio/conduit-connector-sdk"
 )
 
@@ -44,17 +41,10 @@ type Writer struct {
 }
 
 // NewWriter creates new instance of the Writer.
-func NewWriter(ctx context.Context, config config.Destination) (*Writer, error) {
-	fireboltClient := client.New(ctx, config.EngineEndpoint, config.DB)
-
-	err := fireboltClient.Login(ctx, config.Email, config.Password)
-	if err != nil {
-		return nil, fmt.Errorf("client login: %w", err)
-	}
-
+func NewWriter(ctx context.Context, repository Repository, table string) (*Writer, error) {
 	return &Writer{
-		repository: repository.New(fireboltClient),
-		table:      config.Table,
+		repository: repository,
+		table:      table,
 	}, nil
 }
 

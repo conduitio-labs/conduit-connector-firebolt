@@ -4,6 +4,8 @@
 
 The Firebolt connector is one of Conduit plugins. It provides both, a source and a destination Firebolt connector.
 
+The connector will start the Firebolt engine you specified via the connector configuration. And it will periodically check the engine status until it's started.
+
 ### Prerequisites
 
 - [Go](https://go.dev/) 1.18
@@ -20,7 +22,7 @@ Run `make test` to run all the unit and integration tests. The integration tests
 
 ## Destination
 
-The Firebolt Destination takes a `sdk.Record` and parses it into a valid SQL query. When a SQL query is constructed the connector sends an HTTP request to your preconfigured Firebolt engine endpoint. The Destination is designed to handle different payloads and keys.
+The Firebolt Destination takes a `sdk.Record` and parses it into a valid SQL query. When a SQL query is constructed the connector sends an HTTP request to your Firebolt engine endpoint. The Destination is designed to handle different payloads and keys.
 
 ### Table name
 
@@ -32,13 +34,14 @@ Firebolt ([May 11, 2022 version](https://docs.firebolt.io/general-reference/rele
 
 ### Configuration
 
-| name             | description                                                                         | required | example                                                  |
-| ---------------- | ----------------------------------------------------------------------------------- | -------- | -------------------------------------------------------- |
-| `email`          | The email address of your Firebolt account.                                         | **true** | `email@test.com`                                         |
-| `password`       | The password of your Firebolt account.                                              | **true** | `some_password`                                          |
-| `engineEndpoint` | The engine endpoint being used to query your database.                              | **true** | `test-1-general-purpose.myorg.us-east-1.app.firebolt.io` |
-| `db`             | The name of your database.                                                          | **true** | `some_database`                                          |
-| `table`          | The name of a table in the database that the connector should write to, by default. | **true** | `some_table`                                             |
+| name          | description                                                                         | required | example              |
+| ------------- | ----------------------------------------------------------------------------------- | -------- | -------------------- |
+| `email`       | The email address of your Firebolt account.                                         | **true** | `email@test.com`     |
+| `password`    | The password of your Firebolt account.                                              | **true** | `some_password`      |
+| `accountName` | The account name of your Firebolt account.                                          | **true** | `super_organization` |
+| `engineName`  | The engine name of your Firebolt engine.                                            | **true** | `my_super_engine`    |
+| `db`          | The name of your database.                                                          | **true** | `some_database`      |
+| `table`       | The name of a table in the database that the connector should write to, by default. | **true** | `some_table`         |
 
 ## Source
 
@@ -46,17 +49,18 @@ Firebolt ([May 11, 2022 version](https://docs.firebolt.io/general-reference/rele
 
 The config passed to `Configure` can contain the following fields.
 
-| name             | description                                                                                                                                            | required  | example                           |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | --------- | --------------------------------- |
-| `email`          | Firebolt user email.                                                                                                                                   | **true**  | email@test.com                    |
-| `password`       | Password for firebolt account.                                                                                                                         | **true**  | password                          |
-| `engineEndpoint` | Firebolt databse endpoint engine.                                                                                                                      | **true**  | test.test_company.app.firebolt.io |
-| `db`             | Database name.                                                                                                                                         | **true**  | test                              |
-| `table`          | Table name.                                                                                                                                            | **true**  | clients                           |
-| `orderingColumn` | Column which using for ordering in select query . Usually it is can be pk or timestamp column                                                          | **true**  | created_date                      |
-| `columns`        | Comma separated list of column names that should be included in each Record's payload. By default: all columns.                                        | **false** | "id,name,age"                     |
-| `primaryKey`     | Column name that records should use for their `Key` fields.                                                                                            | **true**  | "id"                              |
-| `batchSize`      | Size of batch. By default is 1000. <b>Important:</b> Please don't update this variable after the pipeline starts, it will cause problem with position. | **false** | "100"                             |
+| name             | description                                                                                                                                            | required  | example              |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | --------- | -------------------- |
+| `email`          | The email address of your Firebolt account.                                                                                                            | **true**  | email@test.com       |
+| `password`       | The password of your Firebolt account.                                                                                                                 | **true**  | password             |
+| `accountName`    | The account name of your Firebolt account.                                                                                                             | **true**  | `super_organization` |
+| `engineName`     | The engine name of your Firebolt engine.                                                                                                               | **true**  | `my_super_engine`    |
+| `db`             | The name of your database.                                                                                                                             | **true**  | test                 |
+| `table`          | The name of a table in the database that the connector should read from, by default.                                                                   | **true**  | clients              |
+| `orderingColumn` | Column which using for ordering in select query . Usually it is can be pk or timestamp column                                                          | **true**  | created_date         |
+| `columns`        | Comma separated list of column names that should be included in each Record's payload. By default: all columns.                                        | **false** | "id,name,age"        |
+| `primaryKey`     | Column name that records should use for their `Key` fields.                                                                                            | **true**  | "id"                 |
+| `batchSize`      | Size of batch. By default is 1000. <b>Important:</b> Please don't update this variable after the pipeline starts, it will cause problem with position. | **false** | "100"                |
 
 ### Snapshot iterator
 

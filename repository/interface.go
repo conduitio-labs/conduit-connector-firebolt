@@ -20,7 +20,6 @@ import (
 
 // Client - firebolt client.
 type Client interface {
-	Login(ctx context.Context, email, password string) error
 	RunQuery(ctx context.Context, query string) ([]byte, error)
 	Close(ctx context.Context)
 }

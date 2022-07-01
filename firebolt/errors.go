@@ -12,19 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package source
+package firebolt
 
 import (
-	"context"
-
-	sdk "github.com/conduitio/conduit-connector-sdk"
+	"errors"
 )
 
-// Iterator interface.
-type Iterator interface {
-	Setup(ctx context.Context, p sdk.Position) error
-	HasNext(ctx context.Context) (bool, error)
-	Next(ctx context.Context) (sdk.Record, error)
-	Stop(ctx context.Context) error
-	Ack(rp sdk.Position) error
-}
+var (
+	// errInValidHTTPStatusCode occurs when the client gets invalid HTTP status code.
+	errInValidHTTPStatusCode = errors.New("invalid http status code")
+	// errAccountIDOrEngineIDIsEmpty occurs when the client has empty account id or engine id.
+	errAccountIDOrEngineIDIsEmpty = errors.New("account id or engine id is empty, please do login first")
+	// errCannotDetermineEngineURL occurs when it's impossible to determine an engine's URL.
+	errCannotDetermineEngineURL = errors.New("cannot determine engine url")
+)
