@@ -173,7 +173,7 @@ func prepareConfig() (map[string]string, error) {
 }
 
 func prepareData(ctx context.Context, cfg map[string]string) error {
-	cl := client.NewClient(ctx, cfg[config.KeyDB])
+	cl := client.New(ctx, cfg[config.KeyDB])
 
 	err := cl.Login(ctx, client.LoginParams{
 		Email:       cfg[config.KeyEmail],
@@ -201,7 +201,7 @@ func prepareData(ctx context.Context, cfg map[string]string) error {
 }
 
 func clearData(ctx context.Context, cfg map[string]string) error {
-	cl := client.NewClient(ctx, cfg[config.KeyDB])
+	cl := client.New(ctx, cfg[config.KeyDB])
 
 	err := cl.Login(ctx, client.LoginParams{
 		Email:       cfg[config.KeyEmail],
@@ -223,7 +223,7 @@ func clearData(ctx context.Context, cfg map[string]string) error {
 }
 
 func prepareEmptyTable(ctx context.Context, cfg map[string]string) error {
-	cl := client.NewClient(ctx, cfg[config.KeyDB])
+	cl := client.New(ctx, cfg[config.KeyDB])
 
 	err := cl.Login(ctx, client.LoginParams{
 		Email:       cfg[config.KeyEmail],

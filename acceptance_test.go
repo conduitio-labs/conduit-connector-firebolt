@@ -130,7 +130,7 @@ func prepareConfig(t *testing.T) map[string]string {
 }
 
 func prepareData(ctx context.Context, t *testing.T, cfg map[string]string) error {
-	cl := client.NewClient(ctx, cfg[config.KeyDB])
+	cl := client.New(ctx, cfg[config.KeyDB])
 
 	err := cl.Login(ctx, client.LoginParams{
 		Email:       cfg[config.KeyEmail],

@@ -68,7 +68,7 @@ func (d *Destination) Configure(ctx context.Context, cfg map[string]string) erro
 
 // Open makes sure everything is prepared to persists records.
 func (d *Destination) Open(ctx context.Context) error {
-	d.fireboltClient = client.NewClient(ctx, d.config.DB)
+	d.fireboltClient = client.New(ctx, d.config.DB)
 
 	err := d.fireboltClient.Login(ctx, client.LoginParams{
 		Email:       d.config.Email,

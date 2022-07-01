@@ -73,7 +73,7 @@ func (s *Source) Configure(ctx context.Context, cfgRaw map[string]string) error 
 
 // Open prepare the plugin to start sending records from the given position.
 func (s *Source) Open(ctx context.Context, rp sdk.Position) error {
-	s.fireboltClient = client.NewClient(ctx, s.config.DB)
+	s.fireboltClient = client.New(ctx, s.config.DB)
 
 	err := s.fireboltClient.Login(ctx, client.LoginParams{
 		Email:       s.config.Email,

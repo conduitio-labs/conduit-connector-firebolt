@@ -60,8 +60,8 @@ type Client struct {
 	httpClient *http.Client
 }
 
-// NewClient creates new instance of the Client.
-func NewClient(ctx context.Context, dbName string) *Client {
+// New creates new instance of the Client.
+func New(ctx context.Context, dbName string) *Client {
 	client := &Client{
 		dbName: dbName,
 		errC:   make(chan error, 1),
