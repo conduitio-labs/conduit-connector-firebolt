@@ -21,8 +21,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/conduitio-labs/conduit-connector-firebolt/client"
 	"github.com/conduitio-labs/conduit-connector-firebolt/config"
-	"github.com/conduitio-labs/conduit-connector-firebolt/firebolt"
 	sdk "github.com/conduitio/conduit-connector-sdk"
 	"github.com/matryer/is"
 )
@@ -133,9 +133,9 @@ func prepareConfig() (map[string]string, error) {
 }
 
 func prepareTable(ctx context.Context, cfg map[string]string) error {
-	cl := firebolt.NewClient(ctx, cfg[config.KeyDB])
+	cl := client.NewClient(ctx, cfg[config.KeyDB])
 
-	err := cl.Login(ctx, firebolt.LoginParams{
+	err := cl.Login(ctx, client.LoginParams{
 		Email:       cfg[config.KeyEmail],
 		Password:    cfg[config.KeyPassword],
 		AccountName: cfg[config.KeyAccountName],
@@ -155,9 +155,9 @@ func prepareTable(ctx context.Context, cfg map[string]string) error {
 }
 
 func clearData(ctx context.Context, cfg map[string]string) error {
-	cl := firebolt.NewClient(ctx, cfg[config.KeyDB])
+	cl := client.NewClient(ctx, cfg[config.KeyDB])
 
-	err := cl.Login(ctx, firebolt.LoginParams{
+	err := cl.Login(ctx, client.LoginParams{
 		Email:       cfg[config.KeyEmail],
 		Password:    cfg[config.KeyPassword],
 		AccountName: cfg[config.KeyAccountName],

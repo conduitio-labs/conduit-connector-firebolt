@@ -18,8 +18,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/conduitio-labs/conduit-connector-firebolt/client"
 	"github.com/conduitio-labs/conduit-connector-firebolt/config"
-	"github.com/conduitio-labs/conduit-connector-firebolt/firebolt"
 	"github.com/conduitio-labs/conduit-connector-firebolt/repository"
 	"github.com/conduitio-labs/conduit-connector-firebolt/source/iterator"
 	sdk "github.com/conduitio/conduit-connector-sdk"
@@ -36,7 +36,7 @@ type Iterator interface {
 
 // FireboltClient defines a FireboltClient interface needed for the Source.
 type FireboltClient interface {
-	Login(ctx context.Context, params firebolt.LoginParams) error
+	Login(ctx context.Context, params client.LoginParams) error
 	StartEngine(ctx context.Context) error
 	IsEngineStarted(ctx context.Context) (bool, error)
 	RunQuery(ctx context.Context, query string) ([]byte, error)
@@ -73,9 +73,9 @@ func (s *Source) Configure(ctx context.Context, cfgRaw map[string]string) error 
 
 // Open prepare the plugin to start sending records from the given position.
 func (s *Source) Open(ctx context.Context, rp sdk.Position) error {
-	s.fireboltClient = firebolt.NewClient(ctx, s.config.DB)
+	s.fireboltClient = client.NewClient(ctx, s.config.DB)
 
-	err := s.fireboltClient.Login(ctx, firebolt.LoginParams{
+	err := s.fireboltClient.Login(ctx, client.LoginParams{
 		Email:       s.config.Email,
 		Password:    s.config.Password,
 		AccountName: s.config.AccountName,

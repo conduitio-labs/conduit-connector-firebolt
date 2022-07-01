@@ -8,7 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	firebolt "github.com/conduitio-labs/conduit-connector-firebolt/firebolt"
+	client "github.com/conduitio-labs/conduit-connector-firebolt/client"
 	sdk "github.com/conduitio/conduit-connector-sdk"
 	gomock "github.com/golang/mock/gomock"
 )
@@ -159,7 +159,7 @@ func (mr *MockFireboltClientMockRecorder) IsEngineStarted(ctx interface{}) *gomo
 }
 
 // Login mocks base method.
-func (m *MockFireboltClient) Login(ctx context.Context, params firebolt.LoginParams) error {
+func (m *MockFireboltClient) Login(ctx context.Context, params client.LoginParams) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Login", ctx, params)
 	ret0, _ := ret[0].(error)

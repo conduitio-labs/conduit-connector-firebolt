@@ -18,9 +18,9 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/conduitio-labs/conduit-connector-firebolt/client"
 	"github.com/conduitio-labs/conduit-connector-firebolt/config"
 	"github.com/conduitio-labs/conduit-connector-firebolt/destination/writer"
-	"github.com/conduitio-labs/conduit-connector-firebolt/firebolt"
 	"github.com/conduitio-labs/conduit-connector-firebolt/repository"
 	sdk "github.com/conduitio/conduit-connector-sdk"
 )
@@ -33,7 +33,7 @@ type Writer interface {
 
 // FireboltClient defines a FireboltClient interface needed for the Source.
 type FireboltClient interface {
-	Login(ctx context.Context, params firebolt.LoginParams) error
+	Login(ctx context.Context, params client.LoginParams) error
 	StartEngine(ctx context.Context) error
 	IsEngineStarted(ctx context.Context) (bool, error)
 	RunQuery(ctx context.Context, query string) ([]byte, error)
@@ -68,9 +68,9 @@ func (d *Destination) Configure(ctx context.Context, cfg map[string]string) erro
 
 // Open makes sure everything is prepared to persists records.
 func (d *Destination) Open(ctx context.Context) error {
-	d.fireboltClient = firebolt.NewClient(ctx, d.config.DB)
+	d.fireboltClient = client.NewClient(ctx, d.config.DB)
 
-	err := d.fireboltClient.Login(ctx, firebolt.LoginParams{
+	err := d.fireboltClient.Login(ctx, client.LoginParams{
 		Email:       d.config.Email,
 		Password:    d.config.Password,
 		AccountName: d.config.AccountName,
