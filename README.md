@@ -4,7 +4,9 @@
 
 The Firebolt connector is one of Conduit plugins. It provides both, a source and a destination Firebolt connector.
 
-The connector will start the Firebolt engine you specified via the connector configuration. And it will periodically check the engine status until it's started.
+In order to work with Firebolt the connector needs access to an [engine](https://docs.firebolt.io/working-with-engines/). Engines are computed clusters that run database workloads.
+
+If the engine you specified via the connector configuration is not started the connector will start it for you. And it will periodically check the engine status until it's started.
 
 ### Prerequisites
 
@@ -31,6 +33,8 @@ If a record contains a `table` property in its metadata it will be inserted in t
 ### Known limitations
 
 Firebolt ([May 11, 2022 version](https://docs.firebolt.io/general-reference/release-notes-archive.html#may-11-2022)) doesn't currently support deletes and updates. This means that regardless of the value of an `action` property the connector will insert data. There's no upsert mechanism as well.
+
+It also not possible to create `UNIQUE` constraint. There may be duplicates even if there's a primary key. 
 
 ### Configuration
 
