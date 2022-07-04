@@ -143,10 +143,10 @@ func (c *Client) StartEngine(ctx context.Context) error {
 		return fmt.Errorf("do start engine request: %w", err)
 	}
 
+	c.isEngineStarted = true
 	if engineResponse.Engine.CurrentStatus != EngineStartedStatus {
+		c.isEngineStarted = false
 		go c.listenEngineStatus(ctx)
-	} else {
-		c.isEngineStarted = true
 	}
 
 	return nil
