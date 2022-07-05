@@ -85,10 +85,8 @@ func (s *Source) Open(ctx context.Context, rp sdk.Position) error {
 
 	rep := repository.New(s.fireboltClient)
 
-	it := iterator.NewSnapshotIterator(rep, s.config.BatchSize, s.config.Columns, s.config.Table,
+	s.iterator = iterator.NewSnapshotIterator(rep, s.config.BatchSize, s.config.Columns, s.config.Table,
 		s.config.PrimaryKey, s.config.OrderingColumn)
-
-	s.iterator = it
 
 	isEngineStarted, err := s.fireboltClient.StartEngine(ctx)
 	if err != nil {

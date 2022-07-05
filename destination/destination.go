@@ -82,12 +82,10 @@ func (d *Destination) Open(ctx context.Context) error {
 
 	repository := repository.New(d.fireboltClient)
 
-	w, err := writer.NewWriter(ctx, repository, d.config.Table)
+	d.writer, err = writer.NewWriter(ctx, repository, d.config.Table)
 	if err != nil {
 		return fmt.Errorf("create writer: %w", err)
 	}
-
-	d.writer = w
 
 	isEngineStarted, err := d.fireboltClient.StartEngine(ctx)
 	if err != nil {
