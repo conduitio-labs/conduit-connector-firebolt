@@ -180,17 +180,12 @@ func TestSource_Read(t *testing.T) {
 			Payload:   st,
 		}
 
-		fc := mock.NewMockFireboltClient(ctrl)
-		fc.EXPECT().IsEngineStarted(ctx).Return(true, nil)
-
 		it := mock.NewMockIterator(ctrl)
 		it.EXPECT().HasNext(ctx).Return(true, nil)
 		it.EXPECT().Next(ctx).Return(record, nil)
 
 		s := Source{
-			iterator:        it,
-			fireboltClient:  fc,
-			isIteratorSetup: true,
+			iterator: it,
 		}
 
 		r, err := s.Read(ctx)
@@ -207,16 +202,11 @@ func TestSource_Read(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		ctx := context.Background()
 
-		fc := mock.NewMockFireboltClient(ctrl)
-		fc.EXPECT().IsEngineStarted(ctx).Return(true, nil)
-
 		it := mock.NewMockIterator(ctrl)
 		it.EXPECT().HasNext(ctx).Return(true, errors.New("get data: failed"))
 
 		s := Source{
-			iterator:        it,
-			fireboltClient:  fc,
-			isIteratorSetup: true,
+			iterator: it,
 		}
 
 		_, err := s.Read(ctx)
@@ -229,60 +219,12 @@ func TestSource_Read(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		ctx := context.Background()
 
-		fc := mock.NewMockFireboltClient(ctrl)
-		fc.EXPECT().IsEngineStarted(ctx).Return(true, nil)
-
 		it := mock.NewMockIterator(ctrl)
 		it.EXPECT().HasNext(ctx).Return(true, nil)
 		it.EXPECT().Next(ctx).Return(sdk.Record{}, errors.New("key is not exist"))
 
 		s := Source{
-			iterator:        it,
-			fireboltClient:  fc,
-			isIteratorSetup: true,
-		}
-
-		_, err := s.Read(ctx)
-		if err == nil {
-			t.Errorf("want error")
-		}
-	})
-
-	t.Run("failed_is_engine_started", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		ctx := context.Background()
-
-		fc := mock.NewMockFireboltClient(ctrl)
-		fc.EXPECT().IsEngineStarted(ctx).Return(false, errors.New("something bad happen"))
-
-		s := Source{
-			fireboltClient:  fc,
-			isIteratorSetup: false,
-		}
-
-		_, err := s.Read(ctx)
-		if err == nil {
-			t.Errorf("want error")
-		}
-	})
-
-	t.Run("failed_iterator_setup", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		ctx := context.Background()
-
-		fc := mock.NewMockFireboltClient(ctrl)
-		fc.EXPECT().IsEngineStarted(ctx).Return(true, nil)
-
-		initialPosition := sdk.Position([]byte("random"))
-
-		it := mock.NewMockIterator(ctrl)
-		it.EXPECT().Setup(ctx, initialPosition).Return(errors.New("something went wrong"))
-
-		s := Source{
-			iterator:        it,
-			fireboltClient:  fc,
-			isIteratorSetup: false,
-			initialPosition: initialPosition,
+			iterator: it,
 		}
 
 		_, err := s.Read(ctx)

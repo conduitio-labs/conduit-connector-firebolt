@@ -34,8 +34,8 @@ type Writer interface {
 // FireboltClient defines a FireboltClient interface needed for the Source.
 type FireboltClient interface {
 	Login(ctx context.Context, params client.LoginParams) error
-	StartEngine(ctx context.Context) error
-	IsEngineStarted(ctx context.Context) (bool, error)
+	StartEngine(ctx context.Context) (bool, error)
+	WaitEngineStarted(ctx context.Context) error
 	RunQuery(ctx context.Context, query string) ([]byte, error)
 	Close(ctx context.Context)
 }
@@ -89,8 +89,15 @@ func (d *Destination) Open(ctx context.Context) error {
 
 	d.writer = w
 
-	if err := d.fireboltClient.StartEngine(ctx); err != nil {
+	isEngineStarted, err := d.fireboltClient.StartEngine(ctx)
+	if err != nil {
 		return fmt.Errorf("start engine: %w", err)
+	}
+
+	if !isEngineStarted {
+		if err := d.fireboltClient.WaitEngineStarted(ctx); err != nil {
+			return fmt.Errorf("wait engine started: %w", err)
+		}
 	}
 
 	return nil
@@ -98,15 +105,6 @@ func (d *Destination) Open(ctx context.Context) error {
 
 // Write writes a record into a Destination.
 func (d *Destination) Write(ctx context.Context, record sdk.Record) error {
-	isEngineStarted, err := d.fireboltClient.IsEngineStarted(ctx)
-	if err != nil {
-		return fmt.Errorf("is engine started: %w", err)
-	}
-
-	if !isEngineStarted {
-		return nil
-	}
-
 	return d.writer.InsertRecord(ctx, record)
 }
 

@@ -46,16 +46,14 @@ const (
 
 // Client client for calls to firebolt.
 type Client struct {
-	accessToken     string
-	refreshToken    string
-	accountID       string
-	accountName     string
-	engineID        string
-	engineName      string
-	engineEndpoint  string
-	dbName          string
-	isEngineStarted bool
-	errC            chan error
+	accessToken    string
+	refreshToken   string
+	accountID      string
+	accountName    string
+	engineID       string
+	engineName     string
+	engineEndpoint string
+	dbName         string
 
 	httpClient *http.Client
 }
@@ -64,7 +62,6 @@ type Client struct {
 func New(ctx context.Context, dbName string) *Client {
 	client := &Client{
 		dbName: dbName,
-		errC:   make(chan error, 1),
 	}
 
 	retryClient := retryablehttp.NewClient()
@@ -125,31 +122,27 @@ func (c *Client) Login(ctx context.Context, params LoginParams) error {
 	return nil
 }
 
-// StartEngine starts a Firebolt engine and returns its status.
-// If the engine is already running it will return ENGINE_STATUS_RUNNING_REVISION_SERVING status.
-func (c *Client) StartEngine(ctx context.Context) error {
+// StartEngine starts a Firebolt engine and returns
+// a bool indicating whether the engine is started or not.
+func (c *Client) StartEngine(ctx context.Context) (bool, error) {
 	if c.accountID == "" || c.engineID == "" {
-		return errAccountIDOrEngineIDIsEmpty
+		return false, errAccountIDOrEngineIDIsEmpty
 	}
 
 	req, err := c.newRequest(ctx, http.MethodPost, fmt.Sprintf(startEngineURL, c.accountID, c.engineID), nil)
 	if err != nil {
-		return fmt.Errorf("create start engine request: %w", err)
+		return false, fmt.Errorf("create start engine request: %w", err)
 	}
 
 	var engineResponse engineResponse
 	_, err = c.do(ctx, req, &engineResponse)
 	if err != nil {
-		return fmt.Errorf("do start engine request: %w", err)
+		return false, fmt.Errorf("do start engine request: %w", err)
 	}
 
-	c.isEngineStarted = true
-	if engineResponse.Engine.CurrentStatus != EngineStartedStatus {
-		c.isEngineStarted = false
-		go c.listenEngineStatus(ctx)
-	}
+	isEngineStarted := engineResponse.Engine.CurrentStatus == EngineStartedStatus
 
-	return nil
+	return isEngineStarted, nil
 }
 
 // RunQuery runs an SQL query.
@@ -185,20 +178,6 @@ func (c *Client) GetEngineStatus(ctx context.Context) (string, error) {
 	return engineResponse.Engine.CurrentStatus, nil
 }
 
-// IsEngineStarted says whether the underlying engine is started or not.
-func (c *Client) IsEngineStarted(ctx context.Context) (bool, error) {
-	select {
-	case <-ctx.Done():
-		return false, nil
-
-	case err := <-c.errC:
-		return false, err
-
-	default:
-		return c.isEngineStarted, nil
-	}
-}
-
 // RefreshToken performs a refresh token request.
 // The method set the *Client.accessToken field to the new access token.
 func (c *Client) RefreshToken(ctx context.Context) error {
@@ -220,6 +199,39 @@ func (c *Client) RefreshToken(ctx context.Context) error {
 	c.accessToken = loginResp.AccessToken
 
 	return nil
+}
+
+// WaitEngineStarted periodically checks the engine status,
+// and if the status is equal to ENGINE_STATUS_RUNNING_REVISION_SERVING or ctx is canceled returns.
+// It's a blocking method.
+func (c *Client) WaitEngineStarted(ctx context.Context) error {
+	ticker := time.NewTicker(engineStatusCheckTimeout)
+
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+
+		case <-ticker.C:
+			engineStatus, err := c.GetEngineStatus(ctx)
+			if err != nil {
+				return fmt.Errorf("get engine status: %w", err)
+			}
+
+			sdk.Logger(ctx).Info().Fields(map[string]any{
+				"engine_status": engineStatus,
+			}).Msgf("checking firebolt engine status")
+
+			if engineStatus == EngineStartedStatus {
+				return nil
+			}
+		}
+	}
+}
+
+// Close closes the HTTP client connections.
+func (c *Client) Close(ctx context.Context) {
+	c.httpClient.CloseIdleConnections()
 }
 
 // getAccountIDByName returns an account id by its name.
@@ -390,37 +402,4 @@ func (c *Client) checkRetry(ctx context.Context, resp *http.Response, err error)
 	}
 
 	return false, nil
-}
-
-// listenEngineStatus periodically checks the engine status,
-// and if the status is equal to ENGINE_STATUS_RUNNING_REVISION_SERVING
-// set the isEngineStarted flag to true and returns.
-func (c *Client) listenEngineStatus(ctx context.Context) {
-	ticker := time.NewTicker(engineStatusCheckTimeout)
-
-	for {
-		select {
-		case <-ctx.Done():
-			return
-
-		case <-ticker.C:
-			engineStatus, err := c.GetEngineStatus(ctx)
-			if err != nil {
-				c.errC <- fmt.Errorf("get engine status: %w", err)
-
-				return
-			}
-
-			if engineStatus == EngineStartedStatus {
-				c.isEngineStarted = true
-
-				return
-			}
-		}
-	}
-}
-
-// Close closes the HTTP client connections.
-func (c *Client) Close(ctx context.Context) {
-	c.httpClient.CloseIdleConnections()
 }

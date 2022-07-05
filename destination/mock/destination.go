@@ -99,21 +99,6 @@ func (mr *MockFireboltClientMockRecorder) Close(ctx interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockFireboltClient)(nil).Close), ctx)
 }
 
-// IsEngineStarted mocks base method.
-func (m *MockFireboltClient) IsEngineStarted(ctx context.Context) (bool, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "IsEngineStarted", ctx)
-	ret0, _ := ret[0].(bool)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// IsEngineStarted indicates an expected call of IsEngineStarted.
-func (mr *MockFireboltClientMockRecorder) IsEngineStarted(ctx interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsEngineStarted", reflect.TypeOf((*MockFireboltClient)(nil).IsEngineStarted), ctx)
-}
-
 // Login mocks base method.
 func (m *MockFireboltClient) Login(ctx context.Context, params client.LoginParams) error {
 	m.ctrl.T.Helper()
@@ -144,15 +129,30 @@ func (mr *MockFireboltClientMockRecorder) RunQuery(ctx, query interface{}) *gomo
 }
 
 // StartEngine mocks base method.
-func (m *MockFireboltClient) StartEngine(ctx context.Context) error {
+func (m *MockFireboltClient) StartEngine(ctx context.Context) (bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "StartEngine", ctx)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // StartEngine indicates an expected call of StartEngine.
 func (mr *MockFireboltClientMockRecorder) StartEngine(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartEngine", reflect.TypeOf((*MockFireboltClient)(nil).StartEngine), ctx)
+}
+
+// WaitEngineStarted mocks base method.
+func (m *MockFireboltClient) WaitEngineStarted(ctx context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WaitEngineStarted", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// WaitEngineStarted indicates an expected call of WaitEngineStarted.
+func (mr *MockFireboltClientMockRecorder) WaitEngineStarted(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WaitEngineStarted", reflect.TypeOf((*MockFireboltClient)(nil).WaitEngineStarted), ctx)
 }

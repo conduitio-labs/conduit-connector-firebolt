@@ -37,8 +37,8 @@ type Iterator interface {
 // FireboltClient defines a FireboltClient interface needed for the Source.
 type FireboltClient interface {
 	Login(ctx context.Context, params client.LoginParams) error
-	StartEngine(ctx context.Context) error
-	IsEngineStarted(ctx context.Context) (bool, error)
+	StartEngine(ctx context.Context) (bool, error)
+	WaitEngineStarted(ctx context.Context) error
 	RunQuery(ctx context.Context, query string) ([]byte, error)
 	Close(ctx context.Context)
 }
@@ -47,11 +47,9 @@ type FireboltClient interface {
 type Source struct {
 	sdk.UnimplementedSource
 
-	config          config.Source
-	iterator        Iterator
-	fireboltClient  FireboltClient
-	isIteratorSetup bool
-	initialPosition sdk.Position
+	config         config.Source
+	iterator       Iterator
+	fireboltClient FireboltClient
 }
 
 // New initialises a new source.
@@ -92,23 +90,19 @@ func (s *Source) Open(ctx context.Context, rp sdk.Position) error {
 
 	s.iterator = it
 
-	if err := s.fireboltClient.StartEngine(ctx); err != nil {
+	isEngineStarted, err := s.fireboltClient.StartEngine(ctx)
+	if err != nil {
 		return fmt.Errorf("start engine: %w", err)
 	}
 
-	isEngineStarted, err := s.fireboltClient.IsEngineStarted(ctx)
-	if err != nil {
-		return fmt.Errorf("is engine started: %w", err)
+	if !isEngineStarted {
+		if err := s.fireboltClient.WaitEngineStarted(ctx); err != nil {
+			return fmt.Errorf("wait engine started: %w", err)
+		}
 	}
 
-	if isEngineStarted {
-		if err := s.iterator.Setup(ctx, rp); err != nil {
-			return fmt.Errorf("iterator setup: %w", err)
-		}
-
-		s.isIteratorSetup = true
-	} else {
-		s.initialPosition = rp
+	if err := s.iterator.Setup(ctx, rp); err != nil {
+		return fmt.Errorf("iterator setup: %w", err)
 	}
 
 	return nil
@@ -116,23 +110,6 @@ func (s *Source) Open(ctx context.Context, rp sdk.Position) error {
 
 // Read gets the next object from the snowflake.
 func (s *Source) Read(ctx context.Context) (sdk.Record, error) {
-	isEngineStarted, err := s.fireboltClient.IsEngineStarted(ctx)
-	if err != nil {
-		return sdk.Record{}, fmt.Errorf("is engine started: %w", err)
-	}
-
-	if !isEngineStarted {
-		return sdk.Record{}, sdk.ErrBackoffRetry
-	}
-
-	if !s.isIteratorSetup {
-		if err := s.iterator.Setup(ctx, s.initialPosition); err != nil {
-			return sdk.Record{}, fmt.Errorf("iterator setup: %w", err)
-		}
-
-		s.isIteratorSetup = true
-	}
-
 	hasNext, err := s.iterator.HasNext(ctx)
 	if err != nil {
 		return sdk.Record{}, fmt.Errorf("has next: %w", err)

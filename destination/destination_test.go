@@ -122,15 +122,11 @@ func TestDestination_Write(t *testing.T) {
 			Payload:   st,
 		}
 
-		fc := mock.NewMockFireboltClient(ctrl)
-		fc.EXPECT().IsEngineStarted(ctx).Return(true, nil)
-
 		w := mock.NewMockWriter(ctrl)
 		w.EXPECT().InsertRecord(ctx, record).Return(nil)
 
 		d := Destination{
-			writer:         w,
-			fireboltClient: fc,
+			writer: w,
 		}
 
 		err := d.Write(ctx, record)
@@ -143,32 +139,11 @@ func TestDestination_Write(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		ctx := context.Background()
 
-		fc := mock.NewMockFireboltClient(ctrl)
-		fc.EXPECT().IsEngineStarted(ctx).Return(true, nil)
-
 		w := mock.NewMockWriter(ctrl)
 		w.EXPECT().InsertRecord(ctx, sdk.Record{}).Return(writer.ErrEmptyPayload)
 
 		d := Destination{
-			writer:         w,
-			fireboltClient: fc,
-		}
-
-		err := d.Write(ctx, sdk.Record{})
-		if err == nil {
-			t.Errorf("want error")
-		}
-	})
-
-	t.Run("failed_is_engine_started", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		ctx := context.Background()
-
-		fc := mock.NewMockFireboltClient(ctrl)
-		fc.EXPECT().IsEngineStarted(ctx).Return(false, errors.New("something bad happened"))
-
-		d := Destination{
-			fireboltClient: fc,
+			writer: w,
 		}
 
 		err := d.Write(ctx, sdk.Record{})
