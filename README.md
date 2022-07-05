@@ -6,7 +6,7 @@ The Firebolt connector is one of Conduit plugins. It provides both, a source and
 
 In order to work with Firebolt the connector needs access to an [engine](https://docs.firebolt.io/working-with-engines/). Engines are computed clusters that run database workloads.
 
-If the engine you specified via the connector configuration is not started the connector will start it for you. And it will periodically check the engine status until it's started.
+If the engine you specified in the connector configuration is not running, the connector will start it for you. And it will periodically check the engine status until it starts. The process of starting the engine may take some time, the connector at this moment will not be able to write or read data.
 
 ### Prerequisites
 
