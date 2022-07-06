@@ -324,7 +324,7 @@ func (c *Client) getEngineByID(ctx context.Context) (*engineResponse, error) {
 }
 
 // NewRequest creates an API request.
-func (c *Client) newRequest(ctx context.Context, method, url string, body interface{}) (*http.Request, error) {
+func (c *Client) newRequest(ctx context.Context, method, url string, body any) (*http.Request, error) {
 	var (
 		buf        io.ReadWriter
 		bodyIsJSON bool
@@ -365,7 +365,7 @@ func (c *Client) newRequest(ctx context.Context, method, url string, body interf
 // do sends an API request and returns the API response. The API response is
 // JSON decoded and stored in the value pointed to by out, or returned as an
 // error if an API error has occurred.
-func (c *Client) do(_ context.Context, req *http.Request, out interface{}) (*http.Response, error) {
+func (c *Client) do(_ context.Context, req *http.Request, out any) (*http.Response, error) {
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return resp, err

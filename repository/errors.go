@@ -16,5 +16,9 @@ package repository
 
 import "errors"
 
-// ErrColumnsValuesLenMismatch occurs when trying to insert a row with a different column and value lengths.
-var ErrColumnsValuesLenMismatch = errors.New("number of columns must be equal to number of values")
+var (
+	// ErrColumnsValuesLenMismatch occurs when trying to insert a row with a different column and value lengths.
+	ErrColumnsValuesLenMismatch = errors.New("number of columns must be equal to number of values")
+	// ErrCannotCastValueToFloat64 occurs when trying to cast any to float64 but it failed.
+	ErrCannotCastValueToFloat64 = errors.New("cannot cast value to float64")
+)

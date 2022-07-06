@@ -21,6 +21,9 @@ const (
 	EngineTerminationSuccessfulStatus = "ENGINE_STATUS_TERMINATION_FINISHED"
 	// EngineTerminationdFailedStatus represents a status of a unsuccesfully terminated engine.
 	EngineTerminationdFailedStatus = "ENGINE_STATUS_TERMINATION_FAILED"
+
+	// MetaTypeUInt8 represents an internal Firebolt's type used for boolean.
+	MetaTypeUInt8 = "UInt8"
 )
 
 // loginRequest is a request model for the login route.
@@ -85,15 +88,21 @@ type node struct {
 
 // RunQueryResponse is a response model for run query request.
 type RunQueryResponse struct {
-	Meta []struct {
-		Name string `json:"name"`
-		Type string `json:"type"`
-	} `json:"meta"`
-	Data       []map[string]any `json:"data"`
-	Rows       int              `json:"rows"`
-	Statistics struct {
-		Elapsed   float64 `json:"elapsed"`
-		RowsRead  int     `json:"rows_read"`
-		BytesRead int     `json:"bytes_read"`
-	} `json:"statistics"`
+	Meta       []RunQueryResponseMeta     `json:"meta"`
+	Data       []map[string]any           `json:"data"`
+	Rows       int                        `json:"rows"`
+	Statistics RunQueryResponseStatistics `json:"statistics"`
+}
+
+// RunQueryResponseMeta is a metadata used within the RunQueryResponse.
+type RunQueryResponseMeta struct {
+	Name string `json:"name"`
+	Type string `json:"type"`
+}
+
+// RunQueryResponseStatistics is a statistics used within the RunQueryResponse.
+type RunQueryResponseStatistics struct {
+	Elapsed   float64 `json:"elapsed"`
+	RowsRead  int     `json:"rows_read"`
+	BytesRead int     `json:"bytes_read"`
 }
