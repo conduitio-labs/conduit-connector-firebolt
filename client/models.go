@@ -14,6 +14,15 @@
 
 package client
 
+const (
+	// EngineStartedStatus represents a status of a running engine.
+	EngineStartedStatus = "ENGINE_STATUS_RUNNING_REVISION_SERVING"
+	// EngineTerminationSuccessfulStatus represents a status of a succesfully terminated engine.
+	EngineTerminationSuccessfulStatus = "ENGINE_STATUS_TERMINATION_FINISHED"
+	// EngineTerminationdFailedStatus represents a status of a unsuccesfully terminated engine.
+	EngineTerminationdFailedStatus = "ENGINE_STATUS_TERMINATION_FAILED"
+)
+
 // loginRequest is a request model for the login route.
 type loginRequest struct {
 	Username string `json:"username"`
@@ -32,4 +41,44 @@ type loginResponse struct {
 // refreshTokenRequest is a request model for the refresh token route.
 type refreshTokenRequest struct {
 	RefreshToken string `json:"refresh_token"`
+}
+
+// getAccountByIDResponse is a response model for the get account id by name route.
+type getAccountIDByNameResponse struct {
+	AccountID string `json:"account_id"`
+}
+
+// getEngineIDByNameResponse is a response model for the get engine id by name route.
+type getEngineIDByNameResponse struct {
+	EngineID engineID `json:"engine_id"`
+}
+
+// engineID is a little wrapper for engine id.
+type engineID struct {
+	EngineID string `json:"engine_id"`
+}
+
+// engineResponse is a response model for get engine by id and start engine routes.
+type engineResponse struct {
+	Engine engine `json:"engine"`
+}
+
+// engine holds all fields of the Firebolt engine model.
+type engine struct {
+	CurrentStatus string `json:"current_status"`
+}
+
+// getEngineURLByNameResponse is a response model for get engine url by name route.
+type getEngineURLByNameResponse struct {
+	Edges []edge `json:"edges"`
+}
+
+// edge represents an Edge model used for getEngineURLByNameResponse.
+type edge struct {
+	Node node `json:"node"`
+}
+
+// node represents an Edge's node.
+type node struct {
+	Endpoint string `json:"endpoint"`
 }

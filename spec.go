@@ -47,10 +47,15 @@ func Specification() sdk.Specification {
 				Required:    true,
 				Description: "The Firebolt database name.",
 			},
-			config.KeyEngineEndpoint: {
+			config.KeyAccountName: {
 				Default:     "",
 				Required:    true,
-				Description: "The Firebolt database engine.",
+				Description: "The Firebolt account name.",
+			},
+			config.KeyEngineName: {
+				Default:     "",
+				Required:    true,
+				Description: "The Firebolt engine name.",
 			},
 			config.KeyTable: {
 				Default:     "",
@@ -89,10 +94,15 @@ func Specification() sdk.Specification {
 				Required:    true,
 				Description: "The Firebolt account password.",
 			},
-			config.KeyEngineEndpoint: {
+			config.KeyAccountName: {
 				Default:     "",
 				Required:    true,
-				Description: "The Firebolt database engine.",
+				Description: "The Firebolt account name.",
+			},
+			config.KeyEngineName: {
+				Default:     "",
+				Required:    true,
+				Description: "The Firebolt engine name.",
 			},
 			config.KeyDB: {
 				Default:     "",

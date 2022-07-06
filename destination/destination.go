@@ -18,8 +18,10 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/conduitio-labs/conduit-connector-firebolt/client"
 	"github.com/conduitio-labs/conduit-connector-firebolt/config"
 	"github.com/conduitio-labs/conduit-connector-firebolt/destination/writer"
+	"github.com/conduitio-labs/conduit-connector-firebolt/repository"
 	sdk "github.com/conduitio/conduit-connector-sdk"
 )
 
@@ -29,12 +31,22 @@ type Writer interface {
 	Close(ctx context.Context) error
 }
 
+// FireboltClient defines a FireboltClient interface needed for the Source.
+type FireboltClient interface {
+	Login(ctx context.Context, params client.LoginParams) error
+	StartEngine(ctx context.Context) (bool, error)
+	WaitEngineStarted(ctx context.Context) error
+	RunQuery(ctx context.Context, query string) ([]byte, error)
+	Close(ctx context.Context)
+}
+
 // Destination Firebolt Connector persists records to an Firebolt database.
 type Destination struct {
 	sdk.UnimplementedDestination
 
-	config config.Destination
-	writer Writer
+	config         config.Destination
+	writer         Writer
+	fireboltClient FireboltClient
 }
 
 // New creates new instance of the Destination.
@@ -56,12 +68,35 @@ func (d *Destination) Configure(ctx context.Context, cfg map[string]string) erro
 
 // Open makes sure everything is prepared to persists records.
 func (d *Destination) Open(ctx context.Context) error {
-	w, err := writer.NewWriter(ctx, d.config)
+	d.fireboltClient = client.New(ctx, d.config.DB)
+
+	err := d.fireboltClient.Login(ctx, client.LoginParams{
+		Email:       d.config.Email,
+		Password:    d.config.Password,
+		AccountName: d.config.AccountName,
+		EngineName:  d.config.EngineName,
+	})
+	if err != nil {
+		return fmt.Errorf("client login: %w", err)
+	}
+
+	repository := repository.New(d.fireboltClient)
+
+	d.writer, err = writer.NewWriter(ctx, repository, d.config.Table)
 	if err != nil {
 		return fmt.Errorf("create writer: %w", err)
 	}
 
-	d.writer = w
+	isEngineStarted, err := d.fireboltClient.StartEngine(ctx)
+	if err != nil {
+		return fmt.Errorf("start engine: %w", err)
+	}
+
+	if !isEngineStarted {
+		if err := d.fireboltClient.WaitEngineStarted(ctx); err != nil {
+			return fmt.Errorf("wait engine started: %w", err)
+		}
+	}
 
 	return nil
 }

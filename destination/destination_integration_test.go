@@ -114,26 +114,33 @@ func TestDestination_Write_Failed(t *testing.T) {
 func prepareConfig() (map[string]string, error) {
 	email := os.Getenv("FIREBOLT_EMAIL")
 	password := os.Getenv("FIREBOLT_PASSWORD")
-	databaseEngine := os.Getenv("FIREBOLT_DATABASE_ENGINE")
+	accountName := os.Getenv("FIREBOLT_ACCOUNT_NAME")
+	engineName := os.Getenv("FIREBOLT_ENGINE_NAME")
 	db := os.Getenv("FIREBOLT_DB")
 
-	if email == "" || password == "" || databaseEngine == "" || db == "" {
+	if email == "" || password == "" || accountName == "" || engineName == "" || db == "" {
 		return map[string]string{}, errors.New("missed env variable")
 	}
 
 	return map[string]string{
-		config.KeyEmail:          email,
-		config.KeyPassword:       password,
-		config.KeyEngineEndpoint: databaseEngine,
-		config.KeyDB:             db,
-		config.KeyTable:          testTable,
+		config.KeyEmail:       email,
+		config.KeyPassword:    password,
+		config.KeyAccountName: accountName,
+		config.KeyEngineName:  engineName,
+		config.KeyDB:          db,
+		config.KeyTable:       testTable,
 	}, nil
 }
 
 func prepareTable(ctx context.Context, cfg map[string]string) error {
-	cl := client.New(ctx, cfg[config.KeyEngineEndpoint], cfg[config.KeyDB])
+	cl := client.New(ctx, cfg[config.KeyDB])
 
-	err := cl.Login(ctx, cfg[config.KeyEmail], cfg[config.KeyPassword])
+	err := cl.Login(ctx, client.LoginParams{
+		Email:       cfg[config.KeyEmail],
+		Password:    cfg[config.KeyPassword],
+		AccountName: cfg[config.KeyAccountName],
+		EngineName:  cfg[config.KeyEngineName],
+	})
 	if err != nil {
 		return fmt.Errorf("client login: %w", err)
 	}
@@ -148,9 +155,14 @@ func prepareTable(ctx context.Context, cfg map[string]string) error {
 }
 
 func clearData(ctx context.Context, cfg map[string]string) error {
-	cl := client.New(ctx, cfg[config.KeyEngineEndpoint], cfg[config.KeyDB])
+	cl := client.New(ctx, cfg[config.KeyDB])
 
-	err := cl.Login(ctx, cfg[config.KeyEmail], cfg[config.KeyPassword])
+	err := cl.Login(ctx, client.LoginParams{
+		Email:       cfg[config.KeyEmail],
+		Password:    cfg[config.KeyPassword],
+		AccountName: cfg[config.KeyAccountName],
+		EngineName:  cfg[config.KeyEngineName],
+	})
 	if err != nil {
 		return fmt.Errorf("client login: %w", err)
 	}

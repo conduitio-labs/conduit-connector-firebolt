@@ -21,8 +21,10 @@ const (
 	KeyEmail string = "email"
 	// KeyPassword is a config name for a password.
 	KeyPassword string = "password"
-	// KeyEngineEndpoint is a config name for a engine endpoint.
-	KeyEngineEndpoint string = "engineEndpoint"
+	// KeyAccountName is a config name for an account name.
+	KeyAccountName string = "accountName"
+	// KeyEngineName is a config name for an engine name.
+	KeyEngineName string = "engineName"
 	// KeyDB is a config name for a db.
 	KeyDB string = "db"
 	// KeyTable is a config name for a table.
@@ -36,8 +38,10 @@ type General struct {
 	Email string `validate:"required,email"`
 	// Password Firebolt account password.
 	Password string `validate:"required"`
-	// EngineEndpoint - engine endpoint.
-	EngineEndpoint string `validate:"required"`
+	// AccountName is a Firebolt account name.
+	AccountName string `validate:"required"`
+	// EngineName is a Firebolt engine name.
+	EngineName string `validate:"required"`
 	// DB - database name.
 	DB string `validate:"required"`
 	// Table - database table name.
@@ -47,11 +51,12 @@ type General struct {
 // Parse attempts to parse plugins.Config into a General struct.
 func ParseGeneral(cfg map[string]string) (General, error) {
 	general := General{
-		Email:          cfg[KeyEmail],
-		Password:       cfg[KeyPassword],
-		EngineEndpoint: cfg[KeyEngineEndpoint],
-		DB:             cfg[KeyDB],
-		Table:          cfg[KeyTable],
+		Email:       cfg[KeyEmail],
+		Password:    cfg[KeyPassword],
+		AccountName: cfg[KeyAccountName],
+		EngineName:  cfg[KeyEngineName],
+		DB:          cfg[KeyDB],
+		Table:       cfg[KeyTable],
 	}
 
 	if err := validator.Validate(general); err != nil {

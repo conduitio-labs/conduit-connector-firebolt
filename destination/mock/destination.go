@@ -8,6 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 
+	client "github.com/conduitio-labs/conduit-connector-firebolt/client"
 	sdk "github.com/conduitio/conduit-connector-sdk"
 	gomock "github.com/golang/mock/gomock"
 )
@@ -61,4 +62,97 @@ func (m *MockWriter) InsertRecord(ctx context.Context, record sdk.Record) error 
 func (mr *MockWriterMockRecorder) InsertRecord(ctx, record interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertRecord", reflect.TypeOf((*MockWriter)(nil).InsertRecord), ctx, record)
+}
+
+// MockFireboltClient is a mock of FireboltClient interface.
+type MockFireboltClient struct {
+	ctrl     *gomock.Controller
+	recorder *MockFireboltClientMockRecorder
+}
+
+// MockFireboltClientMockRecorder is the mock recorder for MockFireboltClient.
+type MockFireboltClientMockRecorder struct {
+	mock *MockFireboltClient
+}
+
+// NewMockFireboltClient creates a new mock instance.
+func NewMockFireboltClient(ctrl *gomock.Controller) *MockFireboltClient {
+	mock := &MockFireboltClient{ctrl: ctrl}
+	mock.recorder = &MockFireboltClientMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockFireboltClient) EXPECT() *MockFireboltClientMockRecorder {
+	return m.recorder
+}
+
+// Close mocks base method.
+func (m *MockFireboltClient) Close(ctx context.Context) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "Close", ctx)
+}
+
+// Close indicates an expected call of Close.
+func (mr *MockFireboltClientMockRecorder) Close(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Close", reflect.TypeOf((*MockFireboltClient)(nil).Close), ctx)
+}
+
+// Login mocks base method.
+func (m *MockFireboltClient) Login(ctx context.Context, params client.LoginParams) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Login", ctx, params)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Login indicates an expected call of Login.
+func (mr *MockFireboltClientMockRecorder) Login(ctx, params interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockFireboltClient)(nil).Login), ctx, params)
+}
+
+// RunQuery mocks base method.
+func (m *MockFireboltClient) RunQuery(ctx context.Context, query string) ([]byte, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RunQuery", ctx, query)
+	ret0, _ := ret[0].([]byte)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RunQuery indicates an expected call of RunQuery.
+func (mr *MockFireboltClientMockRecorder) RunQuery(ctx, query interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RunQuery", reflect.TypeOf((*MockFireboltClient)(nil).RunQuery), ctx, query)
+}
+
+// StartEngine mocks base method.
+func (m *MockFireboltClient) StartEngine(ctx context.Context) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "StartEngine", ctx)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// StartEngine indicates an expected call of StartEngine.
+func (mr *MockFireboltClientMockRecorder) StartEngine(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StartEngine", reflect.TypeOf((*MockFireboltClient)(nil).StartEngine), ctx)
+}
+
+// WaitEngineStarted mocks base method.
+func (m *MockFireboltClient) WaitEngineStarted(ctx context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WaitEngineStarted", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// WaitEngineStarted indicates an expected call of WaitEngineStarted.
+func (mr *MockFireboltClientMockRecorder) WaitEngineStarted(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WaitEngineStarted", reflect.TypeOf((*MockFireboltClient)(nil).WaitEngineStarted), ctx)
 }

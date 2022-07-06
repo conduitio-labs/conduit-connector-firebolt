@@ -20,10 +20,16 @@ import (
 	"fmt"
 	"time"
 
-	sdk "github.com/conduitio/conduit-connector-sdk"
-
 	"github.com/conduitio-labs/conduit-connector-firebolt/source/position"
+	sdk "github.com/conduitio/conduit-connector-sdk"
 )
+
+// Repository defines a Firebolt repository interface needed for the SnapshotIterator.
+type Repository interface {
+	GetRows(ctx context.Context, table, orderingColumn string, columns []string,
+		limit, offset int) ([]map[string]any, error)
+	Close(ctx context.Context) error
+}
 
 type actionType string
 
