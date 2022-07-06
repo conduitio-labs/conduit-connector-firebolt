@@ -92,14 +92,18 @@ func Test_prepareRunQueryResponseData(t *testing.T) {
 			err := json.Unmarshal(tt.raw, &tt.args.resp)
 			is.NoErr(err)
 
-			got, err := prepareRunQueryResponseData(tt.args.resp)
+			err = prepareRunQueryResponseData(tt.args.resp)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("prepareRunQueryResponseData() error = %v, wantErr %v", err, tt.wantErr)
 
 				return
 			}
 
-			is.Equal(got, tt.want)
+			if tt.wantErr && err != nil {
+				return
+			}
+
+			is.Equal(tt.args.resp.Data, tt.want)
 		})
 	}
 }

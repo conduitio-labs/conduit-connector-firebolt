@@ -51,12 +51,11 @@ func (r *Repository) GetRows(
 		return nil, fmt.Errorf("run query: %w", err)
 	}
 
-	data, err := prepareRunQueryResponseData(resp)
-	if err != nil {
+	if err := prepareRunQueryResponseData(resp); err != nil {
 		return nil, fmt.Errorf("prepare run query response data: %w", err)
 	}
 
-	return data, nil
+	return resp.Data, nil
 }
 
 // InsertRow inserts a row into a table, with the provided columns and values.
@@ -125,7 +124,7 @@ func buildInsertQuery(table string, columns []string, values []any) (string, err
 // For example if we query a Firebolt's table containing boolean values,
 // Firebolt will return them as UInt8, but other connectors such as Postgres and Materialize
 // don't accept UInt8 as boolean.
-func prepareRunQueryResponseData(resp *client.RunQueryResponse) ([]map[string]any, error) {
+func prepareRunQueryResponseData(resp *client.RunQueryResponse) error {
 	mutations := make(map[string]func(any) (any, error))
 
 	for _, meta := range resp.Meta {
@@ -153,10 +152,10 @@ func prepareRunQueryResponseData(resp *client.RunQueryResponse) ([]map[string]an
 
 			row[key], err = mutations[key](value)
 			if err != nil {
-				return nil, fmt.Errorf("mutate %q key: %w", key, err)
+				return fmt.Errorf("mutate %q key: %w", key, err)
 			}
 		}
 	}
 
-	return resp.Data, nil
+	return nil
 }
