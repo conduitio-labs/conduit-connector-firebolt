@@ -146,7 +146,7 @@ func (c *Client) StartEngine(ctx context.Context) (bool, error) {
 }
 
 // RunQuery runs an SQL query.
-func (c *Client) RunQuery(ctx context.Context, query string) ([]byte, error) {
+func (c *Client) RunQuery(ctx context.Context, query string) (*RunQueryResponse, error) {
 	b := bytes.NewBuffer([]byte(query))
 
 	req, err := c.newRequest(ctx, http.MethodPost, fmt.Sprintf("https://%s/?database=%s",
@@ -155,13 +155,13 @@ func (c *Client) RunQuery(ctx context.Context, query string) ([]byte, error) {
 		return nil, fmt.Errorf("create run query request: %w", err)
 	}
 
-	buff := bytes.NewBuffer(nil)
-	_, err = c.do(ctx, req, buff)
+	var resp RunQueryResponse
+	_, err = c.do(ctx, req, &resp)
 	if err != nil {
 		return nil, fmt.Errorf("do run query request: %w", err)
 	}
 
-	return buff.Bytes(), nil
+	return &resp, nil
 }
 
 // GetEngineStatus returns the current status of the underlying engine.

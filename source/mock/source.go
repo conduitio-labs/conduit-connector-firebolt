@@ -158,10 +158,10 @@ func (mr *MockFireboltClientMockRecorder) Login(ctx, params interface{}) *gomock
 }
 
 // RunQuery mocks base method.
-func (m *MockFireboltClient) RunQuery(ctx context.Context, query string) ([]byte, error) {
+func (m *MockFireboltClient) RunQuery(ctx context.Context, query string) (*client.RunQueryResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RunQuery", ctx, query)
-	ret0, _ := ret[0].([]byte)
+	ret0, _ := ret[0].(*client.RunQueryResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

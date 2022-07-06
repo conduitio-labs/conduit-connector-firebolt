@@ -36,7 +36,7 @@ type FireboltClient interface {
 	Login(ctx context.Context, params client.LoginParams) error
 	StartEngine(ctx context.Context) (bool, error)
 	WaitEngineStarted(ctx context.Context) error
-	RunQuery(ctx context.Context, query string) ([]byte, error)
+	RunQuery(ctx context.Context, query string) (*client.RunQueryResponse, error)
 	Close(ctx context.Context)
 }
 

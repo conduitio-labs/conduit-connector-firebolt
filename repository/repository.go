@@ -16,44 +16,46 @@ package repository
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
+	"github.com/conduitio-labs/conduit-connector-firebolt/client"
 	"github.com/huandu/go-sqlbuilder"
 )
 
-// Firebolt - firebolt repository.
-type Firebolt struct {
-	client Client
+// FireboltClient defines a Firebolt client interface needed for the Repository.
+type FireboltClient interface {
+	RunQuery(ctx context.Context, query string) (*client.RunQueryResponse, error)
+	Close(ctx context.Context)
 }
 
-func New(client Client) *Firebolt {
-	return &Firebolt{client: client}
+// Repository is a firebolt repository.
+type Repository struct {
+	client FireboltClient
+}
+
+// New creates new instance of the Repository.
+func New(client FireboltClient) *Repository {
+	return &Repository{client: client}
 }
 
 // GetRows get rows from table.
-func (f *Firebolt) GetRows(
+func (r *Repository) GetRows(
 	ctx context.Context,
 	table, orderingColumn string,
 	columns []string,
 	limit, offset int,
 ) ([]map[string]any, error) {
 	q := buildGetDataQuery(table, orderingColumn, columns, offset, limit)
-	body, err := f.client.RunQuery(ctx, q)
+	resp, err := r.client.RunQuery(ctx, q)
 	if err != nil {
 		return nil, fmt.Errorf("run query: %w", err)
-	}
-
-	var resp selectQueryResponse
-	if err = json.Unmarshal(body, &resp); err != nil {
-		return nil, fmt.Errorf("unmarshal: %w", err)
 	}
 
 	return resp.Data, nil
 }
 
 // InsertRow inserts a row into a table, with the provided columns and values.
-func (f *Firebolt) InsertRow(ctx context.Context, table string, columns []string, values []any) error {
+func (r *Repository) InsertRow(ctx context.Context, table string, columns []string, values []any) error {
 	if len(columns) != len(values) {
 		return ErrColumnsValuesLenMismatch
 	}
@@ -63,7 +65,7 @@ func (f *Firebolt) InsertRow(ctx context.Context, table string, columns []string
 		return fmt.Errorf("build insert query: %w", err)
 	}
 
-	_, err = f.client.RunQuery(ctx, query)
+	_, err = r.client.RunQuery(ctx, query)
 	if err != nil {
 		return fmt.Errorf("run query: %w", err)
 	}
@@ -71,8 +73,9 @@ func (f *Firebolt) InsertRow(ctx context.Context, table string, columns []string
 	return nil
 }
 
-func (f *Firebolt) Close(ctx context.Context) error {
-	f.client.Close(ctx)
+// Close closes the underlying Firebolt client.
+func (r *Repository) Close(ctx context.Context) error {
+	r.client.Close(ctx)
 
 	return nil
 }

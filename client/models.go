@@ -82,3 +82,18 @@ type edge struct {
 type node struct {
 	Endpoint string `json:"endpoint"`
 }
+
+// RunQueryResponse is a response model for run query request.
+type RunQueryResponse struct {
+	Meta []struct {
+		Name string `json:"name"`
+		Type string `json:"type"`
+	} `json:"meta"`
+	Data       []map[string]any `json:"data"`
+	Rows       int              `json:"rows"`
+	Statistics struct {
+		Elapsed   float64 `json:"elapsed"`
+		RowsRead  int     `json:"rows_read"`
+		BytesRead int     `json:"bytes_read"`
+	} `json:"statistics"`
+}
