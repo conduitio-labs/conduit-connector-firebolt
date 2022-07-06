@@ -218,7 +218,7 @@ func (c *Client) WaitEngineStarted(ctx context.Context) error {
 				return fmt.Errorf("get engine status: %w", err)
 			}
 
-			sdk.Logger(ctx).Info().Fields(map[string]any{
+			sdk.Logger(ctx).Debug().Fields(map[string]any{
 				"engine_status": engineStatus,
 			}).Msgf("checking firebolt engine status")
 
@@ -227,7 +227,7 @@ func (c *Client) WaitEngineStarted(ctx context.Context) error {
 			// this case may occur when we send a start engine request
 			// while the engine is terminating.
 			case EngineTerminationSuccessfulStatus, EngineTerminationdFailedStatus:
-				sdk.Logger(ctx).Info().Fields(map[string]any{
+				sdk.Logger(ctx).Debug().Fields(map[string]any{
 					"engine_status": engineStatus,
 				}).Msgf("firebolt engine is terminated, restarting it")
 
