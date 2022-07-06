@@ -222,7 +222,27 @@ func (c *Client) WaitEngineStarted(ctx context.Context) error {
 				"engine_status": engineStatus,
 			}).Msgf("checking firebolt engine status")
 
-			if engineStatus == EngineStartedStatus {
+			switch engineStatus {
+			// if an engine is terminated we need to restart it.
+			// this case may occur when we send a start engine request
+			// while the engine is terminating.
+			case EngineTerminatedSuccessStatus:
+				sdk.Logger(ctx).Info().Fields(map[string]any{
+					"engine_status": engineStatus,
+				}).Msgf("firebolt engine is terminated, restarting it")
+
+				isEngineStarted, err := c.StartEngine(ctx)
+				if err != nil {
+					return fmt.Errorf("start engine: %w", err)
+				}
+
+				if isEngineStarted {
+					return nil
+				}
+
+				continue
+
+			case EngineStartedStatus:
 				return nil
 			}
 		}
