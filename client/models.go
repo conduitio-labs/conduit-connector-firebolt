@@ -17,8 +17,10 @@ package client
 const (
 	// EngineStartedStatus represents a status of a running engine.
 	EngineStartedStatus = "ENGINE_STATUS_RUNNING_REVISION_SERVING"
-	// EngineTerminatedSuccessStatus represents a status of a succesfully terminated engine.
-	EngineTerminatedSuccessStatus = "ENGINE_STATUS_TERMINATION_FINISHED"
+	// EngineTerminationSuccessfulStatus represents a status of a succesfully terminated engine.
+	EngineTerminationSuccessfulStatus = "ENGINE_STATUS_TERMINATION_FINISHED"
+	// EngineTerminationdFailedStatus represents a status of a unsuccesfully terminated engine.
+	EngineTerminationdFailedStatus = "ENGINE_STATUS_TERMINATION_FAILED"
 )
 
 // loginRequest is a request model for the login route.

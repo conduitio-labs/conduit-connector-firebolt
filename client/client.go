@@ -223,10 +223,10 @@ func (c *Client) WaitEngineStarted(ctx context.Context) error {
 			}).Msgf("checking firebolt engine status")
 
 			switch engineStatus {
-			// if an engine is terminated we need to restart it.
+			// if an engine is terminated (successfully or unsuccessfully) we need to restart it.
 			// this case may occur when we send a start engine request
 			// while the engine is terminating.
-			case EngineTerminatedSuccessStatus:
+			case EngineTerminationSuccessfulStatus, EngineTerminationdFailedStatus:
 				sdk.Logger(ctx).Info().Fields(map[string]any{
 					"engine_status": engineStatus,
 				}).Msgf("firebolt engine is terminated, restarting it")
