@@ -104,6 +104,7 @@ do the same query with the same `offset` value. Iterator gets batch with rows fr
 index for element in this batch what was processed. Iterator looks for next element in batch (with index = 5) and convert
 it to record.
 
-### CDC iterator
+### Known limitations
 
-Not implemented. See firebolt limitations.
+Firebolt ([May 11, 2022 version](https://docs.firebolt.io/general-reference/release-notes-archive.html#may-11-2022)) doesn't
+currently support deletes and updates. Change Data Captured iterator not implemented.
