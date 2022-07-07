@@ -53,26 +53,26 @@ It also not possible to create `UNIQUE` constraint. There may be duplicates even
 
 The config passed to `Configure` can contain the following fields.
 
-| name             | description                                                                                                                                            | required  | example              |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | --------- | -------------------- |
-| `email`          | The email address of your Firebolt account.                                                                                                            | **true**  | email@test.com       |
-| `password`       | The password of your Firebolt account.                                                                                                                 | **true**  | password             |
-| `accountName`    | The account name of your Firebolt account.                                                                                                             | **true**  | `super_organization` |
-| `engineName`     | The engine name of your Firebolt engine.                                                                                                               | **true**  | `my_super_engine`    |
-| `db`             | The name of your database.                                                                                                                             | **true**  | test                 |
-| `table`          | The name of a table in the database that the connector should read from, by default.                                                                   | **true**  | clients              |
-| `orderingColumn` | Column which using for ordering in select query . Usually it is can be pk or timestamp column                                                          | **true**  | created_date         |
-| `columns`        | Comma separated list of column names that should be included in each Record's payload. By default: all columns.                                        | **false** | "id,name,age"        |
-| `primaryKey`     | Column name that records should use for their `Key` fields.                                                                                            | **true**  | "id"                 |
-| `batchSize`      | Size of batch. By default is 1000. <b>Important:</b> Please don't update this variable after the pipeline starts, it will cause problem with position. | **false** | "100"                |
+| name             | description                                                                                                                                           | required  | example              |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | -------------------- |
+| `email`          | The email address of your Firebolt account.                                                                                                           | **true**  | email@test.com       |
+| `password`       | The password of your Firebolt account.                                                                                                                | **true**  | password             |
+| `accountName`    | The account name of your Firebolt account.                                                                                                            | **true**  | `super_organization` |
+| `engineName`     | The engine name of your Firebolt engine.                                                                                                              | **true**  | `my_super_engine`    |
+| `db`             | The name of your database.                                                                                                                            | **true**  | test                 |
+| `table`          | The name of a table in the database that the connector should read from, by default.                                                                  | **true**  | clients              |
+| `orderingColumn` | Column which using for ordering in select query . Usually it is can be pk or timestamp column                                                         | **true**  | created_date         |
+| `columns`        | Comma separated list of column names that should be included in each Record's payload. By default: all columns.                                       | **false** | "id,name,age"        |
+| `primaryKey`     | Column name that records should use for their `Key` fields.                                                                                           | **true**  | "id"                 |
+| `batchSize`      | Size of batch. By default is 100. <b>Important:</b> Please don't update this variable after the pipeline starts, it will cause problem with position. | **false** | "100"                |
 
 ### Snapshot iterator
 
 The snapshot iterator starts getting data from the table using post request with select query with limit and offset and
 ordering by ordering column. For example `select * from {table} order by {orderingColumn} limit 20 offset 0`. Batch size
-is configurable, offset value is zero for first time. Iterator save rows from table to `currentBatch` slice variable.
-Iterator HasNext method check if next element exist in currentBatch using variable index and if it is needed change offset
-and run select query to get new data with new offset. Method `Next` gets next element and converts it to `Record` sets metadata variable table,
+is configurable, offset value is zero for the first time. Iterator save rows from table to `currentBatch` slice variable.
+Iterator `HasNext` method checks if next element exist in currentBatch using variable index and if it is needed changes offset
+and runs select query to get new data with new offset. Method `Next` gets next element and converts it to `Record` sets metadata variable table,
 set metadata variable action - `insert`, increases index.
 
 Example of position:
@@ -106,4 +106,4 @@ it to record.
 
 ### CDC iterator
 
-Not implemented. The Firebolt doesn't have functionality to update and delete rows (Firebolt ([May 11, 2022 version](https://docs.firebolt.io/general-reference/release-notes-archive.html#may-11-2022))).
+Not implemented. See firebolt limitations.
