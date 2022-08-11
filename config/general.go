@@ -14,7 +14,11 @@
 
 package config
 
-import "github.com/conduitio-labs/conduit-connector-firebolt/config/validator"
+import (
+	"strings"
+
+	"github.com/conduitio-labs/conduit-connector-firebolt/config/validator"
+)
 
 const (
 	// KeyEmail is a config name for a email.
@@ -51,7 +55,7 @@ type General struct {
 // Parse attempts to parse plugins.Config into a General struct.
 func ParseGeneral(cfg map[string]string) (General, error) {
 	general := General{
-		Email:       cfg[KeyEmail],
+		Email:       strings.ToLower(cfg[KeyEmail]),
 		Password:    cfg[KeyPassword],
 		AccountName: cfg[KeyAccountName],
 		EngineName:  cfg[KeyEngineName],
