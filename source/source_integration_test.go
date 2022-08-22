@@ -22,9 +22,10 @@ import (
 	"reflect"
 	"testing"
 
+	sdk "github.com/conduitio/conduit-connector-sdk"
+
 	"github.com/conduitio-labs/conduit-connector-firebolt/client"
 	"github.com/conduitio-labs/conduit-connector-firebolt/config"
-	sdk "github.com/conduitio/conduit-connector-sdk"
 )
 
 const (
@@ -160,15 +161,14 @@ func prepareConfig() (map[string]string, error) {
 	}
 
 	return map[string]string{
-		config.KeyEmail:          email,
-		config.KeyPassword:       password,
-		config.KeyAccountName:    accountName,
-		config.KeyEngineName:     engineName,
-		config.KeyDB:             db,
-		config.KeyTable:          testTable,
-		config.KeyPrimaryKey:     "id",
-		config.KeyBatchSize:      "100",
-		config.KeyOrderingColumn: "id",
+		config.KeyEmail:       email,
+		config.KeyPassword:    password,
+		config.KeyAccountName: accountName,
+		config.KeyEngineName:  engineName,
+		config.KeyDB:          db,
+		config.KeyTable:       testTable,
+		config.KeyPrimaryKey:  "id",
+		config.KeyBatchSize:   "100",
 	}, nil
 }
 

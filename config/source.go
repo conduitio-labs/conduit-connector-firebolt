@@ -28,8 +28,6 @@ const (
 	KeyColumns string = "columns"
 	// KeyBatchSize is a config name for a batch size.
 	KeyBatchSize string = "batchSize"
-	// KeyOrderingColumn is a config name for a ordering column.
-	KeyOrderingColumn string = "orderingColumn"
 	// KeyPrimaryKey is a config name for a primary key.
 	KeyPrimaryKey string = "primaryKey"
 
@@ -45,8 +43,6 @@ type Source struct {
 	Columns []string
 	// BatchSize - size of batch.
 	BatchSize int `validate:"gte=1,lte=100"`
-	// OrderingColumn - column which using for ordering for snapshot iterator.
-	OrderingColumn string `validate:"required"`
 	// Key - Column name that records should use for their `Key` fields.
 	PrimaryKey string `validate:"required"`
 }
@@ -59,10 +55,9 @@ func ParseSource(cfg map[string]string) (Source, error) {
 	}
 
 	source := Source{
-		General:        general,
-		OrderingColumn: cfg[KeyOrderingColumn],
-		BatchSize:      defaultBatchSize,
-		PrimaryKey:     cfg[KeyPrimaryKey],
+		General:    general,
+		BatchSize:  defaultBatchSize,
+		PrimaryKey: cfg[KeyPrimaryKey],
 	}
 
 	if colsRaw := cfg[KeyColumns]; colsRaw != "" {

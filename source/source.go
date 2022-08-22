@@ -19,11 +19,12 @@ import (
 	"fmt"
 	"time"
 
+	sdk "github.com/conduitio/conduit-connector-sdk"
+
 	"github.com/conduitio-labs/conduit-connector-firebolt/client"
 	"github.com/conduitio-labs/conduit-connector-firebolt/config"
 	"github.com/conduitio-labs/conduit-connector-firebolt/repository"
 	"github.com/conduitio-labs/conduit-connector-firebolt/source/iterator"
-	sdk "github.com/conduitio/conduit-connector-sdk"
 )
 
 // Iterator defines an Iterator interface needed for the Source.
@@ -106,11 +107,6 @@ func (s *Source) Parameters() map[string]sdk.Parameter {
 			Required:    true,
 			Description: "Column name that records should use for their `Key` fields.",
 		},
-		config.KeyOrderingColumn: {
-			Default:     "",
-			Required:    true,
-			Description: "Column which using for ordering data",
-		},
 		config.KeyBatchSize: {
 			Default:     "100",
 			Required:    false,
@@ -148,7 +144,7 @@ func (s *Source) Open(ctx context.Context, rp sdk.Position) error {
 	rep := repository.New(s.fireboltClient)
 
 	s.iterator = iterator.NewSnapshotIterator(rep, s.config.BatchSize, s.config.Columns, s.config.Table,
-		s.config.PrimaryKey, s.config.OrderingColumn)
+		s.config.PrimaryKey)
 
 	isEngineStarted, err := s.fireboltClient.StartEngine(ctx)
 	if err != nil {

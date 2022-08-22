@@ -24,11 +24,12 @@ import (
 	"time"
 
 	"github.com/brianvoe/gofakeit"
-	"github.com/conduitio-labs/conduit-connector-firebolt/client"
-	"github.com/conduitio-labs/conduit-connector-firebolt/config"
 	sdk "github.com/conduitio/conduit-connector-sdk"
 	"github.com/matryer/is"
 	"go.uber.org/goleak"
+
+	"github.com/conduitio-labs/conduit-connector-firebolt/client"
+	"github.com/conduitio-labs/conduit-connector-firebolt/config"
 )
 
 const (
@@ -104,14 +105,13 @@ func prepareConfig(t *testing.T) map[string]string {
 	}
 
 	cfg := map[string]string{
-		config.KeyEmail:          email,
-		config.KeyPassword:       password,
-		config.KeyAccountName:    accountName,
-		config.KeyEngineName:     engineName,
-		config.KeyDB:             db,
-		config.KeyPrimaryKey:     "id",
-		config.KeyBatchSize:      "100",
-		config.KeyOrderingColumn: "id",
+		config.KeyEmail:       email,
+		config.KeyPassword:    password,
+		config.KeyAccountName: accountName,
+		config.KeyEngineName:  engineName,
+		config.KeyDB:          db,
+		config.KeyPrimaryKey:  "id",
+		config.KeyBatchSize:   "100",
 	}
 
 	return cfg
