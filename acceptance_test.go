@@ -23,7 +23,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/brianvoe/gofakeit"
 	sdk "github.com/conduitio/conduit-connector-sdk"
 	"github.com/matryer/is"
 	"go.uber.org/goleak"
@@ -56,7 +55,7 @@ func (d *driver) GenerateRecord(t *testing.T, op sdk.Operation) sdk.Record {
 		},
 		Payload: sdk.Change{After: sdk.RawData(
 			fmt.Sprintf(
-				`{"id":%d,"name":"%s"}`, d.counter, gofakeit.Name(),
+				`{"id":%d,"name":"test_%d"}`, d.counter, d.counter,
 			),
 		),
 		},
@@ -73,6 +72,11 @@ func TestAcceptance(t *testing.T) {
 				SourceConfig:      cfg,
 				DestinationConfig: cfg,
 				BeforeTest:        beforeTest(t, cfg),
+				Skip: []string{
+					// Firebolt doesn't have cdc iterator
+					"TestSource_Open_ResumeAtPositionCDC",
+					"TestSource_Read_Success",
+				},
 				GoleakOptions: []goleak.Option{
 					// the problem with leak goroutines is related to
 					// KeepAlive and TLSHandshake timeouts in go-retryablehttp's Dialer.

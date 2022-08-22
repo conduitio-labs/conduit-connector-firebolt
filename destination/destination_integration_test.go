@@ -21,10 +21,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/conduitio-labs/conduit-connector-firebolt/client"
-	"github.com/conduitio-labs/conduit-connector-firebolt/config"
 	sdk "github.com/conduitio/conduit-connector-sdk"
 	"github.com/matryer/is"
+
+	"github.com/conduitio-labs/conduit-connector-firebolt/client"
+	"github.com/conduitio-labs/conduit-connector-firebolt/config"
 )
 
 const (
@@ -64,11 +65,15 @@ func TestDestination_Write_Success(t *testing.T) {
 		{Payload: sdk.Change{After: sdk.StructuredData{
 			"id":   "1",
 			"test": "test",
-		}}},
+		}},
+			Operation: sdk.OperationSnapshot,
+		},
 		{Payload: sdk.Change{After: sdk.StructuredData{
 			"id":   "2",
 			"test": "test2",
-		}}},
+		}},
+			Operation: sdk.OperationCreate,
+		},
 	},
 	)
 
