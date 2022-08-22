@@ -15,7 +15,7 @@ The process of starting the engine may take some time, the connector at this mom
 
 - [Go](https://go.dev/) 1.18
 - (optional) [golangci-lint](https://github.com/golangci/golangci-lint) 1.45.2
-- Firebolt ([May 11, 2022 version](https://docs.firebolt.io/general-reference/release-notes-archive.html#may-11-2022))
+- Firebolt ([May 31, 2022 version](https://docs.firebolt.io/general-reference/release-notes-archive.html#may-31-2022))
 
 ### How to build it
 
@@ -37,7 +37,7 @@ This way the Destination can support multiple tables in the same connector, as l
 
 ### Known limitations
 
-Firebolt ([May 11, 2022 version](https://docs.firebolt.io/general-reference/release-notes-archive.html#may-11-2022)) doesn't 
+Firebolt ([May 31, 2022 version](https://docs.firebolt.io/general-reference/release-notes-archive.html#may-31-2022))) doesn't 
 currently support deletes and updates.
 This means that regardless of the value of the `action` property the connector will insert data. There's no upsert mechanism as well.
 
@@ -116,5 +116,5 @@ and converts it into a record.
 
 ### Known limitations
 
-Firebolt ([May 11, 2022 version](https://docs.firebolt.io/general-reference/release-notes-archive.html#may-11-2022)) doesn't
+Firebolt ([May 31, 2022 version](https://docs.firebolt.io/general-reference/release-notes-archive.html#may-31-2022)) doesn't
 currently support deletes and updates. Change Data Captured iterator not implemented.

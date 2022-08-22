@@ -17,6 +17,7 @@ package source
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/conduitio-labs/conduit-connector-firebolt/client"
 	"github.com/conduitio-labs/conduit-connector-firebolt/config"
@@ -36,10 +37,15 @@ type Iterator interface {
 
 // FireboltClient defines a FireboltClient interface needed for the Source.
 type FireboltClient interface {
+	// Login to Firebolt API.
 	Login(ctx context.Context, params client.LoginParams) error
+	// StartEngine start firebolt database engine.
 	StartEngine(ctx context.Context) (bool, error)
+	// WaitEngineStarted wait and check if firebolt database was started.
 	WaitEngineStarted(ctx context.Context) error
+	// RunQuery run query to frebolt DB.
 	RunQuery(ctx context.Context, query string) (*client.RunQueryResponse, error)
+	// Close client.
 	Close(ctx context.Context)
 }
 
@@ -94,19 +100,22 @@ func (s *Source) Open(ctx context.Context, rp sdk.Position) error {
 	}
 
 	if !isEngineStarted {
-		if err := s.fireboltClient.WaitEngineStarted(ctx); err != nil {
+		ctxWithTimeOut, cancel := context.WithTimeout(ctx, 10*time.Minute)
+		defer cancel()
+
+		if err = s.fireboltClient.WaitEngineStarted(ctxWithTimeOut); err != nil {
 			return fmt.Errorf("wait engine started: %w", err)
 		}
 	}
 
-	if err := s.iterator.Setup(ctx, rp); err != nil {
+	if err = s.iterator.Setup(ctx, rp); err != nil {
 		return fmt.Errorf("iterator setup: %w", err)
 	}
 
 	return nil
 }
 
-// Read gets the next object from the snowflake.
+// Read gets the next object from the firebolt.
 func (s *Source) Read(ctx context.Context) (sdk.Record, error) {
 	hasNext, err := s.iterator.HasNext(ctx)
 	if err != nil {

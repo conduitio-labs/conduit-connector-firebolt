@@ -210,7 +210,7 @@ func (c *Client) WaitEngineStarted(ctx context.Context) error {
 	for {
 		select {
 		case <-ctx.Done():
-			return nil
+			return ctx.Err()
 
 		case <-ticker.C:
 			engineStatus, err := c.GetEngineStatus(ctx)

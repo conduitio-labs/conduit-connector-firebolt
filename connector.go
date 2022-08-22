@@ -12,13 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package firebolt
 
 import (
-	firebolt "github.com/conduitio-labs/conduit-connector-firebolt"
+	"github.com/conduitio-labs/conduit-connector-firebolt/destination"
+	"github.com/conduitio-labs/conduit-connector-firebolt/source"
 	sdk "github.com/conduitio/conduit-connector-sdk"
 )
 
-func main() {
-	sdk.Serve(firebolt.Connector)
+var Connector = sdk.Connector{
+	NewSpecification: Specification,
+	NewSource:        source.New,
+	NewDestination:   destination.New,
 }

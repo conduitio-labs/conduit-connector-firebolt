@@ -26,8 +26,6 @@ import (
 	"github.com/brianvoe/gofakeit"
 	"github.com/conduitio-labs/conduit-connector-firebolt/client"
 	"github.com/conduitio-labs/conduit-connector-firebolt/config"
-	"github.com/conduitio-labs/conduit-connector-firebolt/destination"
-	"github.com/conduitio-labs/conduit-connector-firebolt/source"
 	sdk "github.com/conduitio/conduit-connector-sdk"
 	"github.com/matryer/is"
 	"go.uber.org/goleak"
@@ -76,11 +74,7 @@ func TestAcceptance(t *testing.T) {
 	sdk.AcceptanceTest(t, &driver{
 		ConfigurableAcceptanceTestDriver: sdk.ConfigurableAcceptanceTestDriver{
 			Config: sdk.ConfigurableAcceptanceTestDriverConfig{
-				Connector: sdk.Connector{
-					NewSpecification: Specification,
-					NewSource:        source.New,
-					NewDestination:   destination.New,
-				},
+				Connector:         Connector,
 				SourceConfig:      cfg,
 				DestinationConfig: cfg,
 				BeforeTest:        beforeTest(t, cfg),
