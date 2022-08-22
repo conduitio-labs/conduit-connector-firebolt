@@ -20,26 +20,21 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/conduitio-labs/conduit-connector-firebolt/source/position"
 	sdk "github.com/conduitio/conduit-connector-sdk"
+
+	"github.com/conduitio-labs/conduit-connector-firebolt/source/position"
 )
 
 // Repository defines a Firebolt repository interface needed for the SnapshotIterator.
 type Repository interface {
-	GetRows(ctx context.Context, table, orderingColumn string, columns []string,
+	GetRows(ctx context.Context, table string, columns []string,
 		limit, offset int) ([]map[string]any, error)
 	Close(ctx context.Context) error
 }
 
-type actionType string
-
 const (
 	// metadata related.
-	metadataTable  = "table"
-	metadataAction = "action"
-
-	// actionType names.
-	actionInsert actionType = "insertValue"
+	metadataTable = "table"
 )
 
 type SnapshotIterator struct {
@@ -55,8 +50,6 @@ type SnapshotIterator struct {
 	currentBatch []map[string]any
 	// name of column what iterator use for setting key in record.
 	primaryKey string
-	// column using for ordering in select query.
-	orderingColumn string
 	// list of columns to reading from table.
 	columns []string
 	// table which iterator read.
@@ -67,15 +60,14 @@ func NewSnapshotIterator(
 	firebolt Repository,
 	batchSize int,
 	columns []string,
-	table, primaryKey, orderingColumn string,
+	table, primaryKey string,
 ) *SnapshotIterator {
 	return &SnapshotIterator{
-		firebolt:       firebolt,
-		batchSize:      batchSize,
-		primaryKey:     primaryKey,
-		orderingColumn: orderingColumn,
-		columns:        columns,
-		table:          table}
+		firebolt:   firebolt,
+		batchSize:  batchSize,
+		primaryKey: primaryKey,
+		columns:    columns,
+		table:      table}
 }
 
 // Setup iterator.
@@ -95,7 +87,7 @@ func (i *SnapshotIterator) Setup(ctx context.Context, p sdk.Position) error {
 	i.indexInBatch = index
 	i.batchID = batchID
 
-	rows, err := i.firebolt.GetRows(ctx, i.table, i.orderingColumn, i.columns, i.batchSize, i.batchID)
+	rows, err := i.firebolt.GetRows(ctx, i.table, i.columns, i.batchSize, i.batchID)
 	if err != nil {
 		return fmt.Errorf("get rows: %w", err)
 	}
@@ -118,7 +110,7 @@ func (i *SnapshotIterator) HasNext(ctx context.Context) (bool, error) {
 		i.indexInBatch = 0
 	}
 
-	i.currentBatch, err = i.firebolt.GetRows(ctx, i.table, i.orderingColumn, i.columns, i.batchSize, i.batchID)
+	i.currentBatch, err = i.firebolt.GetRows(ctx, i.table, i.columns, i.batchSize, i.batchID)
 	if err != nil {
 		return false, err
 	}
@@ -157,18 +149,13 @@ func (i *SnapshotIterator) Next(ctx context.Context) (sdk.Record, error) {
 
 	i.indexInBatch++
 
-	return sdk.Record{
-		Position: p,
-		Metadata: map[string]string{
-			metadataTable:  i.table,
-			metadataAction: string(actionInsert),
-		},
-		CreatedAt: time.Now(),
-		Key: sdk.StructuredData{
-			i.primaryKey: key,
-		},
-		Payload: payload,
-	}, nil
+	metadata := sdk.Metadata(map[string]string{metadataTable: i.table})
+	metadata.SetCreatedAt(time.Now())
+
+	record := sdk.Util.Source.NewRecordSnapshot(p, metadata,
+		sdk.StructuredData{i.primaryKey: key}, payload)
+
+	return record, nil
 }
 
 // Stop shutdown iterator.

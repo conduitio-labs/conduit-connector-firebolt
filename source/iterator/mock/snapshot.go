@@ -49,16 +49,16 @@ func (mr *MockRepositoryMockRecorder) Close(ctx interface{}) *gomock.Call {
 }
 
 // GetRows mocks base method.
-func (m *MockRepository) GetRows(ctx context.Context, table, orderingColumn string, columns []string, limit, offset int) ([]map[string]any, error) {
+func (m *MockRepository) GetRows(ctx context.Context, table string, columns []string, limit, offset int) ([]map[string]any, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetRows", ctx, table, orderingColumn, columns, limit, offset)
+	ret := m.ctrl.Call(m, "GetRows", ctx, table, columns, limit, offset)
 	ret0, _ := ret[0].([]map[string]any)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetRows indicates an expected call of GetRows.
-func (mr *MockRepositoryMockRecorder) GetRows(ctx, table, orderingColumn, columns, limit, offset interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) GetRows(ctx, table, columns, limit, offset interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRows", reflect.TypeOf((*MockRepository)(nil).GetRows), ctx, table, orderingColumn, columns, limit, offset)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRows", reflect.TypeOf((*MockRepository)(nil).GetRows), ctx, table, columns, limit, offset)
 }

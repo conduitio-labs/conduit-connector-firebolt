@@ -23,22 +23,17 @@ import (
 	"testing"
 	"time"
 
-	"github.com/brianvoe/gofakeit"
-	"github.com/conduitio-labs/conduit-connector-firebolt/client"
-	"github.com/conduitio-labs/conduit-connector-firebolt/config"
-	"github.com/conduitio-labs/conduit-connector-firebolt/destination"
-	"github.com/conduitio-labs/conduit-connector-firebolt/source"
 	sdk "github.com/conduitio/conduit-connector-sdk"
 	"github.com/matryer/is"
 	"go.uber.org/goleak"
+
+	"github.com/conduitio-labs/conduit-connector-firebolt/client"
+	"github.com/conduitio-labs/conduit-connector-firebolt/config"
 )
 
 const (
 	queryCreateTable = "CREATE DIMENSION TABLE %s (id INT, name TEXT)"
 	queryDropTable   = "DROP TABLE IF EXISTS %s"
-
-	metadataAction = "action"
-	actionInsert   = "insertValue"
 )
 
 type driver struct {
@@ -48,25 +43,22 @@ type driver struct {
 }
 
 // GenerateRecord generates a random sdk.Record.
-func (d *driver) GenerateRecord(t *testing.T) sdk.Record {
+func (d *driver) GenerateRecord(t *testing.T, op sdk.Operation) sdk.Record {
 	atomic.AddInt64(&d.counter, 1)
 
 	return sdk.Record{
-		Position: nil,
-		Metadata: map[string]string{
-			metadataAction:  actionInsert,
-			config.KeyTable: d.Config.DestinationConfig[config.KeyTable],
-		},
+		Operation: op,
 		Key: sdk.StructuredData{
 			// convert to float64, since the connector will unmarhsal the value into "any" as float64
 			// see https://pkg.go.dev/encoding/json#Unmarshal
 			"id": float64(d.counter),
 		},
-		Payload: sdk.RawData(
+		Payload: sdk.Change{After: sdk.RawData(
 			fmt.Sprintf(
-				`{"id":%d,"name":"%s"}`, d.counter, gofakeit.Name(),
+				`{"id":%d,"name":"test_%d"}`, d.counter, d.counter,
 			),
 		),
+		},
 	}
 }
 
@@ -76,14 +68,15 @@ func TestAcceptance(t *testing.T) {
 	sdk.AcceptanceTest(t, &driver{
 		ConfigurableAcceptanceTestDriver: sdk.ConfigurableAcceptanceTestDriver{
 			Config: sdk.ConfigurableAcceptanceTestDriverConfig{
-				Connector: sdk.Connector{
-					NewSpecification: Specification,
-					NewSource:        source.New,
-					NewDestination:   destination.New,
-				},
+				Connector:         Connector,
 				SourceConfig:      cfg,
 				DestinationConfig: cfg,
 				BeforeTest:        beforeTest(t, cfg),
+				Skip: []string{
+					// Firebolt doesn't have cdc iterator
+					"TestSource_Open_ResumeAtPositionCDC",
+					"TestSource_Read_Success",
+				},
 				GoleakOptions: []goleak.Option{
 					// the problem with leak goroutines is related to
 					// KeepAlive and TLSHandshake timeouts in go-retryablehttp's Dialer.
@@ -116,14 +109,13 @@ func prepareConfig(t *testing.T) map[string]string {
 	}
 
 	cfg := map[string]string{
-		config.KeyEmail:          email,
-		config.KeyPassword:       password,
-		config.KeyAccountName:    accountName,
-		config.KeyEngineName:     engineName,
-		config.KeyDB:             db,
-		config.KeyPrimaryKey:     "id",
-		config.KeyBatchSize:      "100",
-		config.KeyOrderingColumn: "id",
+		config.KeyEmail:       email,
+		config.KeyPassword:    password,
+		config.KeyAccountName: accountName,
+		config.KeyEngineName:  engineName,
+		config.KeyDB:          db,
+		config.KeyPrimaryKey:  "id",
+		config.KeyBatchSize:   "100",
 	}
 
 	return cfg

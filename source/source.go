@@ -17,12 +17,14 @@ package source
 import (
 	"context"
 	"fmt"
+	"time"
+
+	sdk "github.com/conduitio/conduit-connector-sdk"
 
 	"github.com/conduitio-labs/conduit-connector-firebolt/client"
 	"github.com/conduitio-labs/conduit-connector-firebolt/config"
 	"github.com/conduitio-labs/conduit-connector-firebolt/repository"
 	"github.com/conduitio-labs/conduit-connector-firebolt/source/iterator"
-	sdk "github.com/conduitio/conduit-connector-sdk"
 )
 
 // Iterator defines an Iterator interface needed for the Source.
@@ -36,10 +38,15 @@ type Iterator interface {
 
 // FireboltClient defines a FireboltClient interface needed for the Source.
 type FireboltClient interface {
+	// Login to Firebolt API.
 	Login(ctx context.Context, params client.LoginParams) error
+	// StartEngine start firebolt database engine.
 	StartEngine(ctx context.Context) (bool, error)
+	// WaitEngineStarted wait and check if firebolt database was started.
 	WaitEngineStarted(ctx context.Context) error
+	// RunQuery run query to frebolt DB.
 	RunQuery(ctx context.Context, query string) (*client.RunQueryResponse, error)
+	// Close client.
 	Close(ctx context.Context)
 }
 
@@ -55,6 +62,57 @@ type Source struct {
 // New initialises a new source.
 func New() sdk.Source {
 	return &Source{}
+}
+
+// Parameters returns a map of named sdk.Parameters that describe how to configure the Source.
+func (s *Source) Parameters() map[string]sdk.Parameter {
+	return map[string]sdk.Parameter{
+		config.KeyEmail: {
+			Default:     "",
+			Required:    true,
+			Description: "The Firebolt email account.",
+		},
+		config.KeyPassword: {
+			Default:     "",
+			Required:    true,
+			Description: "The Firebolt account password.",
+		},
+		config.KeyDB: {
+			Default:     "",
+			Required:    true,
+			Description: "The Firebolt database name.",
+		},
+		config.KeyAccountName: {
+			Default:     "",
+			Required:    true,
+			Description: "The Firebolt account name.",
+		},
+		config.KeyEngineName: {
+			Default:     "",
+			Required:    true,
+			Description: "The Firebolt engine name.",
+		},
+		config.KeyTable: {
+			Default:     "",
+			Required:    true,
+			Description: "The table name.",
+		},
+		config.KeyColumns: {
+			Default:     "",
+			Required:    false,
+			Description: "Comma separated list of column names that should be included in each Record's payload.",
+		},
+		config.KeyPrimaryKey: {
+			Default:     "",
+			Required:    true,
+			Description: "Column name that records should use for their `Key` fields.",
+		},
+		config.KeyBatchSize: {
+			Default:     "100",
+			Required:    false,
+			Description: "Size of batch",
+		},
+	}
 }
 
 // Configure parses and stores configurations, returns an error in case of invalid configuration.
@@ -86,7 +144,7 @@ func (s *Source) Open(ctx context.Context, rp sdk.Position) error {
 	rep := repository.New(s.fireboltClient)
 
 	s.iterator = iterator.NewSnapshotIterator(rep, s.config.BatchSize, s.config.Columns, s.config.Table,
-		s.config.PrimaryKey, s.config.OrderingColumn)
+		s.config.PrimaryKey)
 
 	isEngineStarted, err := s.fireboltClient.StartEngine(ctx)
 	if err != nil {
@@ -94,19 +152,22 @@ func (s *Source) Open(ctx context.Context, rp sdk.Position) error {
 	}
 
 	if !isEngineStarted {
-		if err := s.fireboltClient.WaitEngineStarted(ctx); err != nil {
+		ctxWithTimeOut, cancel := context.WithTimeout(ctx, 10*time.Minute)
+		defer cancel()
+
+		if err = s.fireboltClient.WaitEngineStarted(ctxWithTimeOut); err != nil {
 			return fmt.Errorf("wait engine started: %w", err)
 		}
 	}
 
-	if err := s.iterator.Setup(ctx, rp); err != nil {
+	if err = s.iterator.Setup(ctx, rp); err != nil {
 		return fmt.Errorf("iterator setup: %w", err)
 	}
 
 	return nil
 }
 
-// Read gets the next object from the snowflake.
+// Read gets the next object from the firebolt.
 func (s *Source) Read(ctx context.Context) (sdk.Record, error) {
 	hasNext, err := s.iterator.HasNext(ctx)
 	if err != nil {

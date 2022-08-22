@@ -19,7 +19,6 @@ import (
 	"errors"
 	"reflect"
 	"testing"
-	"time"
 
 	sdk "github.com/conduitio/conduit-connector-sdk"
 	"github.com/golang/mock/gomock"
@@ -39,30 +38,28 @@ func TestSource_Configure(t *testing.T) {
 		{
 			name: "valid config",
 			cfg: map[string]string{
-				config.KeyEmail:          "test@test.com",
-				config.KeyPassword:       "12345",
-				config.KeyAccountName:    "super_account",
-				config.KeyEngineName:     "super_engine",
-				config.KeyDB:             "db",
-				config.KeyTable:          "test",
-				config.KeyPrimaryKey:     "id",
-				config.KeyBatchSize:      "100",
-				config.KeyOrderingColumn: "id",
+				config.KeyEmail:       "test@test.com",
+				config.KeyPassword:    "12345",
+				config.KeyAccountName: "super_account",
+				config.KeyEngineName:  "super_engine",
+				config.KeyDB:          "db",
+				config.KeyTable:       "test",
+				config.KeyPrimaryKey:  "id",
+				config.KeyBatchSize:   "100",
 			},
 			wantErr: false,
 		},
 		{
 			name: "valid config, custom batch size",
 			cfg: map[string]string{
-				config.KeyEmail:          "test@test.com",
-				config.KeyPassword:       "12345",
-				config.KeyAccountName:    "super_account",
-				config.KeyEngineName:     "super_engine",
-				config.KeyDB:             "db",
-				config.KeyTable:          "test",
-				config.KeyPrimaryKey:     "id",
-				config.KeyBatchSize:      "20",
-				config.KeyOrderingColumn: "id",
+				config.KeyEmail:       "test@test.com",
+				config.KeyPassword:    "12345",
+				config.KeyAccountName: "super_account",
+				config.KeyEngineName:  "super_engine",
+				config.KeyDB:          "db",
+				config.KeyTable:       "test",
+				config.KeyPrimaryKey:  "id",
+				config.KeyBatchSize:   "20",
 			},
 			wantErr: false,
 		},
@@ -136,20 +133,6 @@ func TestSource_Configure(t *testing.T) {
 			},
 			wantErr: true,
 		},
-		{
-			name: "invalid config, missed ordering column",
-			cfg: map[string]string{
-				config.KeyEmail:       "test@test.com",
-				config.KeyPassword:    "12345",
-				config.KeyAccountName: "super_account",
-				config.KeyEngineName:  "super_engine",
-				config.KeyDB:          "db",
-				config.KeyTable:       "test",
-				config.KeyPrimaryKey:  "id",
-				config.KeyBatchSize:   "100",
-			},
-			wantErr: true,
-		},
 	}
 
 	for _, tt := range tests {
@@ -173,11 +156,10 @@ func TestSource_Read(t *testing.T) {
 		st["key"] = "value"
 
 		record := sdk.Record{
-			Position:  sdk.Position("1.0"),
-			Metadata:  nil,
-			CreatedAt: time.Time{},
-			Key:       st,
-			Payload:   st,
+			Position: sdk.Position("1.0"),
+			Metadata: nil,
+			Key:      st,
+			Payload:  sdk.Change{After: st},
 		}
 
 		it := mock.NewMockIterator(ctrl)

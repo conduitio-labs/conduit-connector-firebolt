@@ -17,12 +17,14 @@ package destination
 import (
 	"context"
 	"fmt"
+	"time"
+
+	sdk "github.com/conduitio/conduit-connector-sdk"
 
 	"github.com/conduitio-labs/conduit-connector-firebolt/client"
 	"github.com/conduitio-labs/conduit-connector-firebolt/config"
 	"github.com/conduitio-labs/conduit-connector-firebolt/destination/writer"
 	"github.com/conduitio-labs/conduit-connector-firebolt/repository"
-	sdk "github.com/conduitio/conduit-connector-sdk"
 )
 
 // Writer defines a writer interface needed for the Destination.
@@ -54,6 +56,42 @@ func New() sdk.Destination {
 	return &Destination{}
 }
 
+// Parameters returns a map of named sdk.Parameters that describe how to configure the Destination.
+func (d *Destination) Parameters() map[string]sdk.Parameter {
+	return map[string]sdk.Parameter{
+		config.KeyEmail: {
+			Default:     "",
+			Required:    true,
+			Description: "The Firebolt email account.",
+		},
+		config.KeyPassword: {
+			Default:     "",
+			Required:    true,
+			Description: "The Firebolt account password.",
+		},
+		config.KeyAccountName: {
+			Default:     "",
+			Required:    true,
+			Description: "The Firebolt account name.",
+		},
+		config.KeyEngineName: {
+			Default:     "",
+			Required:    true,
+			Description: "The Firebolt engine name.",
+		},
+		config.KeyDB: {
+			Default:     "",
+			Required:    true,
+			Description: "The Firebolt database name.",
+		},
+		config.KeyTable: {
+			Default:     "",
+			Required:    true,
+			Description: "The Firebolt database table name.",
+		},
+	}
+}
+
 // Configure parses and initializes the Destination config.
 func (d *Destination) Configure(ctx context.Context, cfg map[string]string) error {
 	configuration, err := config.ParseDestination(cfg)
@@ -80,9 +118,9 @@ func (d *Destination) Open(ctx context.Context) error {
 		return fmt.Errorf("client login: %w", err)
 	}
 
-	repository := repository.New(d.fireboltClient)
+	rep := repository.New(d.fireboltClient)
 
-	d.writer, err = writer.NewWriter(ctx, repository, d.config.Table)
+	d.writer, err = writer.NewWriter(ctx, rep, d.config.Table)
 	if err != nil {
 		return fmt.Errorf("create writer: %w", err)
 	}
@@ -93,7 +131,10 @@ func (d *Destination) Open(ctx context.Context) error {
 	}
 
 	if !isEngineStarted {
-		if err := d.fireboltClient.WaitEngineStarted(ctx); err != nil {
+		ctxWithTimeOut, cancel := context.WithTimeout(ctx, 10*time.Minute)
+		defer cancel()
+
+		if err = d.fireboltClient.WaitEngineStarted(ctxWithTimeOut); err != nil {
 			return fmt.Errorf("wait engine started: %w", err)
 		}
 	}
@@ -102,8 +143,20 @@ func (d *Destination) Open(ctx context.Context) error {
 }
 
 // Write writes a record into a Destination.
-func (d *Destination) Write(ctx context.Context, record sdk.Record) error {
-	return d.writer.InsertRecord(ctx, record)
+func (d *Destination) Write(ctx context.Context, records []sdk.Record) (int, error) {
+	for i, record := range records {
+		err := sdk.Util.Destination.Route(ctx, record,
+			d.writer.InsertRecord,
+			nil,
+			nil,
+			d.writer.InsertRecord,
+		)
+		if err != nil {
+			return i, fmt.Errorf("route %s: %w", record.Operation.String(), err)
+		}
+	}
+
+	return len(records), nil
 }
 
 // Teardown gracefully closes connections.

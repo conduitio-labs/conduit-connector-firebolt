@@ -15,7 +15,7 @@ The process of starting the engine may take some time, the connector at this mom
 
 - [Go](https://go.dev/) 1.18
 - (optional) [golangci-lint](https://github.com/golangci/golangci-lint) 1.45.2
-- Firebolt ([May 11, 2022 version](https://docs.firebolt.io/general-reference/release-notes-archive.html#may-11-2022))
+- Firebolt ([May 31, 2022 version](https://docs.firebolt.io/general-reference/release-notes-archive.html#may-31-2022))
 
 ### How to build it
 
@@ -37,7 +37,7 @@ This way the Destination can support multiple tables in the same connector, as l
 
 ### Known limitations
 
-Firebolt ([May 11, 2022 version](https://docs.firebolt.io/general-reference/release-notes-archive.html#may-11-2022)) doesn't 
+Firebolt ([May 31, 2022 version](https://docs.firebolt.io/general-reference/release-notes-archive.html#may-31-2022))) doesn't 
 currently support deletes and updates.
 This means that regardless of the value of the `action` property the connector will insert data. There's no upsert mechanism as well.
 
@@ -68,15 +68,14 @@ The config passed to `Configure` can contain the following fields.
 | `engineName`     | The engine name of your Firebolt engine.                                                                                                              | **true**  | `my_super_engine`    |
 | `db`             | The name of your database.                                                                                                                            | **true**  | test                 |
 | `table`          | The name of a table in the database that the connector should read from, by default.                                                                  | **true**  | clients              |
-| `orderingColumn` | Column which is using for ordering in select query. It can be a pk or a timestamp column                                                              | **true**  | created_date         |
 | `columns`        | Comma separated list of column names that should be included in the each Record's payload. By default: all columns.                                   | **false** | "id,name,age"        |
 | `primaryKey`     | The name of the column that records should use for their `key` fields.                                                                                          | **true**  | "id"                 |
 | `batchSize`      | Size of batch. By default is 100. <b>Important:</b> Please, don’t update this variable after running the pipeline, as this will cause position issues. | **false** | "100"                |
 
 ### Snapshot iterator
 
-The snapshot iterator starts getting data from the table using post request with select query with limit and offset and
-ordering by `orderingColumn`. For example `select * from {table} order by {orderingColumn} limit 20 offset 0`. Batch size
+The snapshot iterator starts getting data from the table using post request with select query with limit and offset. 
+For example `select * from {table} limit 20 offset 0`. Batch size
 is configurable, offset value is zero for the first time. Iterator saves rows from table to `currentBatch` slice variable.
 The Iterator `HasNext` method checks if the next element exists in the currentBatch using variable `index` and,
 if necessary, changes the `offset` and runs a select query to get a new data with the new offset. Method `Next` 
@@ -116,5 +115,5 @@ and converts it into a record.
 
 ### Known limitations
 
-Firebolt ([May 11, 2022 version](https://docs.firebolt.io/general-reference/release-notes-archive.html#may-11-2022)) doesn't
+Firebolt ([May 31, 2022 version](https://docs.firebolt.io/general-reference/release-notes-archive.html#may-31-2022)) doesn't
 currently support deletes and updates. Change Data Captured iterator not implemented.

@@ -15,17 +15,10 @@
 package main
 
 import (
-	sdk "github.com/conduitio/conduit-connector-sdk"
-
 	firebolt "github.com/conduitio-labs/conduit-connector-firebolt"
-	"github.com/conduitio-labs/conduit-connector-firebolt/destination"
-	"github.com/conduitio-labs/conduit-connector-firebolt/source"
+	sdk "github.com/conduitio/conduit-connector-sdk"
 )
 
 func main() {
-	sdk.Serve(sdk.Connector{
-		NewSpecification: firebolt.Specification,
-		NewSource:        source.New,
-		NewDestination:   destination.New,
-	})
+	sdk.Serve(firebolt.Connector)
 }

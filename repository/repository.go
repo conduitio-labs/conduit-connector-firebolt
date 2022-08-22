@@ -18,8 +18,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/conduitio-labs/conduit-connector-firebolt/client"
 	"github.com/huandu/go-sqlbuilder"
+
+	"github.com/conduitio-labs/conduit-connector-firebolt/client"
 )
 
 // FireboltClient defines a Firebolt client interface needed for the Repository.
@@ -41,11 +42,11 @@ func New(client FireboltClient) *Repository {
 // GetRows get rows from table.
 func (r *Repository) GetRows(
 	ctx context.Context,
-	table, orderingColumn string,
+	table string,
 	columns []string,
 	limit, offset int,
 ) ([]map[string]any, error) {
-	q := buildGetDataQuery(table, orderingColumn, columns, offset, limit)
+	q := buildGetDataQuery(table, columns, offset, limit)
 	resp, err := r.client.RunQuery(ctx, q)
 	if err != nil {
 		return nil, fmt.Errorf("run query: %w", err)
@@ -84,7 +85,7 @@ func (r *Repository) Close(ctx context.Context) error {
 	return nil
 }
 
-func buildGetDataQuery(table, orderingColumn string, fields []string, offset, limit int) string {
+func buildGetDataQuery(table string, fields []string, offset, limit int) string {
 	sb := sqlbuilder.NewSelectBuilder()
 
 	if len(fields) == 0 {
@@ -96,7 +97,6 @@ func buildGetDataQuery(table, orderingColumn string, fields []string, offset, li
 	sb.From(table)
 	sb.Offset(offset)
 	sb.Limit(limit)
-	sb.OrderBy(orderingColumn)
 
 	return sb.String()
 }

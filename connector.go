@@ -15,19 +15,13 @@
 package firebolt
 
 import (
+	"github.com/conduitio-labs/conduit-connector-firebolt/destination"
+	"github.com/conduitio-labs/conduit-connector-firebolt/source"
 	sdk "github.com/conduitio/conduit-connector-sdk"
 )
 
-type Spec struct{}
-
-// Specification returns the Plugin's Specification.
-func Specification() sdk.Specification {
-	return sdk.Specification{
-		Name:    "firebolt",
-		Summary: "The Firebolt plugin for Conduit, written in Go.",
-		Description: "The Firebolt connector is one of Conduit plugins." +
-			"It provides the source and destination snowflake connector.",
-		Version: "v0.1.0",
-		Author:  "Meroxa, Inc.",
-	}
+var Connector = sdk.Connector{
+	NewSpecification: Specification,
+	NewSource:        source.New,
+	NewDestination:   destination.New,
 }
