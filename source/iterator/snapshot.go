@@ -31,15 +31,9 @@ type Repository interface {
 	Close(ctx context.Context) error
 }
 
-type actionType string
-
 const (
 	// metadata related.
-	metadataTable  = "table"
-	metadataAction = "action"
-
-	// actionType names.
-	actionInsert actionType = "insertValue"
+	metadataTable = "table"
 )
 
 type SnapshotIterator struct {
@@ -157,18 +151,13 @@ func (i *SnapshotIterator) Next(ctx context.Context) (sdk.Record, error) {
 
 	i.indexInBatch++
 
-	return sdk.Record{
-		Position: p,
-		Metadata: map[string]string{
-			metadataTable:  i.table,
-			metadataAction: string(actionInsert),
-		},
-		CreatedAt: time.Now(),
-		Key: sdk.StructuredData{
-			i.primaryKey: key,
-		},
-		Payload: payload,
-	}, nil
+	metadata := sdk.Metadata(map[string]string{metadataTable: i.table})
+	metadata.SetCreatedAt(time.Now())
+
+	record := sdk.Util.Source.NewRecordSnapshot(p, metadata,
+		sdk.StructuredData{i.primaryKey: key}, payload)
+
+	return record, nil
 }
 
 // Stop shutdown iterator.

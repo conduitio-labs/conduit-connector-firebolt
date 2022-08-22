@@ -16,8 +16,6 @@ package firebolt
 
 import (
 	sdk "github.com/conduitio/conduit-connector-sdk"
-
-	"github.com/conduitio-labs/conduit-connector-firebolt/config"
 )
 
 type Spec struct{}
@@ -31,89 +29,5 @@ func Specification() sdk.Specification {
 			"It provides the source and destination snowflake connector.",
 		Version: "v0.1.0",
 		Author:  "Meroxa, Inc.",
-		SourceParams: map[string]sdk.Parameter{
-			config.KeyEmail: {
-				Default:     "",
-				Required:    true,
-				Description: "The Firebolt email account.",
-			},
-			config.KeyPassword: {
-				Default:     "",
-				Required:    true,
-				Description: "The Firebolt account password.",
-			},
-			config.KeyDB: {
-				Default:     "",
-				Required:    true,
-				Description: "The Firebolt database name.",
-			},
-			config.KeyAccountName: {
-				Default:     "",
-				Required:    true,
-				Description: "The Firebolt account name.",
-			},
-			config.KeyEngineName: {
-				Default:     "",
-				Required:    true,
-				Description: "The Firebolt engine name.",
-			},
-			config.KeyTable: {
-				Default:     "",
-				Required:    true,
-				Description: "The table name.",
-			},
-			config.KeyColumns: {
-				Default:     "",
-				Required:    false,
-				Description: "Comma separated list of column names that should be included in each Record's payload.",
-			},
-			config.KeyPrimaryKey: {
-				Default:     "",
-				Required:    true,
-				Description: "Column name that records should use for their `Key` fields.",
-			},
-			config.KeyOrderingColumn: {
-				Default:     "",
-				Required:    true,
-				Description: "Column which using for ordering data",
-			},
-			config.KeyBatchSize: {
-				Default:     "100",
-				Required:    false,
-				Description: "Size of batch",
-			},
-		},
-		DestinationParams: map[string]sdk.Parameter{
-			config.KeyEmail: {
-				Default:     "",
-				Required:    true,
-				Description: "The Firebolt email account.",
-			},
-			config.KeyPassword: {
-				Default:     "",
-				Required:    true,
-				Description: "The Firebolt account password.",
-			},
-			config.KeyAccountName: {
-				Default:     "",
-				Required:    true,
-				Description: "The Firebolt account name.",
-			},
-			config.KeyEngineName: {
-				Default:     "",
-				Required:    true,
-				Description: "The Firebolt engine name.",
-			},
-			config.KeyDB: {
-				Default:     "",
-				Required:    true,
-				Description: "The Firebolt database name.",
-			},
-			config.KeyTable: {
-				Default:     "",
-				Required:    true,
-				Description: "The Firebolt database table name.",
-			},
-		},
 	}
 }

@@ -49,7 +49,7 @@ func TestDestination_Write_Success(t *testing.T) {
 	d := new(Destination)
 
 	t.Cleanup(func() {
-		if err := clearData(ctx, cfg); err != nil {
+		if err = clearData(ctx, cfg); err != nil {
 			t.Error(err)
 		}
 	})
@@ -60,13 +60,21 @@ func TestDestination_Write_Success(t *testing.T) {
 	err = d.Open(ctx)
 	is.NoErr(err)
 
-	err = d.Write(ctx, sdk.Record{
-		Payload: sdk.StructuredData{
+	count, err := d.Write(ctx, []sdk.Record{
+		{Payload: sdk.Change{After: sdk.StructuredData{
 			"id":   "1",
-			"test": "hellp",
-		},
-	})
+			"test": "test",
+		}}},
+		{Payload: sdk.Change{After: sdk.StructuredData{
+			"id":   "2",
+			"test": "test2",
+		}}},
+	},
+	)
+
 	is.NoErr(err)
+
+	is.Equal(count, 2)
 
 	err = d.Teardown(ctx)
 	is.NoErr(err)
@@ -98,13 +106,18 @@ func TestDestination_Write_Failed(t *testing.T) {
 	err = d.Open(ctx)
 	is.NoErr(err)
 
-	err = d.Write(ctx, sdk.Record{
-		Payload: sdk.StructuredData{
-			// non-existent column "name"
-			"name": "bob",
-			"test": "hellp",
-		},
-	})
+	_, err = d.Write(ctx, []sdk.Record{
+		{Payload: sdk.Change{After: sdk.StructuredData{
+			"id":   "1",
+			"test": "test",
+		}}},
+		{Payload: sdk.Change{After: sdk.StructuredData{
+			"id":   "2",
+			"test": "test2",
+		}}},
+	},
+	)
+
 	is.Equal(err != nil, true)
 
 	err = d.Teardown(ctx)

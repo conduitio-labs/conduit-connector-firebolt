@@ -18,13 +18,13 @@ import (
 	"context"
 	"errors"
 	"testing"
-	"time"
+
+	sdk "github.com/conduitio/conduit-connector-sdk"
+	"github.com/golang/mock/gomock"
 
 	"github.com/conduitio-labs/conduit-connector-firebolt/config"
 	"github.com/conduitio-labs/conduit-connector-firebolt/destination/mock"
 	"github.com/conduitio-labs/conduit-connector-firebolt/destination/writer"
-	sdk "github.com/conduitio/conduit-connector-sdk"
-	"github.com/golang/mock/gomock"
 )
 
 func TestDestination_Configure(t *testing.T) {
@@ -117,9 +117,9 @@ func TestDestination_Write(t *testing.T) {
 		record := sdk.Record{
 			Position:  sdk.Position("1.0"),
 			Metadata:  nil,
-			CreatedAt: time.Time{},
 			Key:       st,
-			Payload:   st,
+			Operation: sdk.OperationCreate,
+			Payload:   sdk.Change{After: st},
 		}
 
 		w := mock.NewMockWriter(ctrl)
@@ -129,7 +129,7 @@ func TestDestination_Write(t *testing.T) {
 			writer: w,
 		}
 
-		err := d.Write(ctx, record)
+		_, err := d.Write(ctx, []sdk.Record{record})
 		if err != nil {
 			t.Errorf("read error = \"%s\"", err.Error())
 		}
@@ -139,14 +139,25 @@ func TestDestination_Write(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		ctx := context.Background()
 
+		st := make(sdk.StructuredData)
+		st["key"] = "value"
+
+		record := sdk.Record{
+			Position:  sdk.Position("1.0"),
+			Metadata:  nil,
+			Key:       st,
+			Operation: sdk.OperationSnapshot,
+			Payload:   sdk.Change{After: st},
+		}
+
 		w := mock.NewMockWriter(ctrl)
-		w.EXPECT().InsertRecord(ctx, sdk.Record{}).Return(writer.ErrEmptyPayload)
+		w.EXPECT().InsertRecord(ctx, record).Return(writer.ErrEmptyPayload)
 
 		d := Destination{
 			writer: w,
 		}
 
-		err := d.Write(ctx, sdk.Record{})
+		_, err := d.Write(ctx, []sdk.Record{record})
 		if err == nil {
 			t.Errorf("want error")
 		}

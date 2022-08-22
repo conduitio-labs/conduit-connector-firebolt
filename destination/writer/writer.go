@@ -52,7 +52,7 @@ func NewWriter(ctx context.Context, repository Repository, table string) (*Write
 func (w *Writer) InsertRecord(ctx context.Context, record sdk.Record) error {
 	table := w.getTableName(record.Metadata)
 
-	payload, err := w.structurizeData(record.Payload)
+	payload, err := w.structurizeData(record.Payload.After)
 	if err != nil {
 		return fmt.Errorf("structurize payload: %w", err)
 	}

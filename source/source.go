@@ -63,6 +63,62 @@ func New() sdk.Source {
 	return &Source{}
 }
 
+// Parameters returns a map of named sdk.Parameters that describe how to configure the Source.
+func (s *Source) Parameters() map[string]sdk.Parameter {
+	return map[string]sdk.Parameter{
+		config.KeyEmail: {
+			Default:     "",
+			Required:    true,
+			Description: "The Firebolt email account.",
+		},
+		config.KeyPassword: {
+			Default:     "",
+			Required:    true,
+			Description: "The Firebolt account password.",
+		},
+		config.KeyDB: {
+			Default:     "",
+			Required:    true,
+			Description: "The Firebolt database name.",
+		},
+		config.KeyAccountName: {
+			Default:     "",
+			Required:    true,
+			Description: "The Firebolt account name.",
+		},
+		config.KeyEngineName: {
+			Default:     "",
+			Required:    true,
+			Description: "The Firebolt engine name.",
+		},
+		config.KeyTable: {
+			Default:     "",
+			Required:    true,
+			Description: "The table name.",
+		},
+		config.KeyColumns: {
+			Default:     "",
+			Required:    false,
+			Description: "Comma separated list of column names that should be included in each Record's payload.",
+		},
+		config.KeyPrimaryKey: {
+			Default:     "",
+			Required:    true,
+			Description: "Column name that records should use for their `Key` fields.",
+		},
+		config.KeyOrderingColumn: {
+			Default:     "",
+			Required:    true,
+			Description: "Column which using for ordering data",
+		},
+		config.KeyBatchSize: {
+			Default:     "100",
+			Required:    false,
+			Description: "Size of batch",
+		},
+	}
+}
+
 // Configure parses and stores configurations, returns an error in case of invalid configuration.
 func (s *Source) Configure(ctx context.Context, cfgRaw map[string]string) error {
 	cfg, err := config.ParseSource(cfgRaw)

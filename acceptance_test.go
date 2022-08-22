@@ -34,9 +34,6 @@ import (
 const (
 	queryCreateTable = "CREATE DIMENSION TABLE %s (id INT, name TEXT)"
 	queryDropTable   = "DROP TABLE IF EXISTS %s"
-
-	metadataAction = "action"
-	actionInsert   = "insertValue"
 )
 
 type driver struct {
@@ -46,25 +43,22 @@ type driver struct {
 }
 
 // GenerateRecord generates a random sdk.Record.
-func (d *driver) GenerateRecord(t *testing.T) sdk.Record {
+func (d *driver) GenerateRecord(t *testing.T, op sdk.Operation) sdk.Record {
 	atomic.AddInt64(&d.counter, 1)
 
 	return sdk.Record{
-		Position: nil,
-		Metadata: map[string]string{
-			metadataAction:  actionInsert,
-			config.KeyTable: d.Config.DestinationConfig[config.KeyTable],
-		},
+		Operation: op,
 		Key: sdk.StructuredData{
 			// convert to float64, since the connector will unmarhsal the value into "any" as float64
 			// see https://pkg.go.dev/encoding/json#Unmarshal
 			"id": float64(d.counter),
 		},
-		Payload: sdk.RawData(
+		Payload: sdk.Change{After: sdk.RawData(
 			fmt.Sprintf(
 				`{"id":%d,"name":"%s"}`, d.counter, gofakeit.Name(),
 			),
 		),
+		},
 	}
 }
 
