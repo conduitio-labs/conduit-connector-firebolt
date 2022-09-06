@@ -158,7 +158,7 @@ func (c *Client) RunQuery(ctx context.Context, query string) (*RunQueryResponse,
 	var resp RunQueryResponse
 	err = c.do(ctx, req, &resp)
 	if err != nil {
-		return nil, fmt.Errorf("do run query request: %w", err)
+		return nil, fmt.Errorf("execute run query request: %w", err)
 	}
 
 	return &resp, nil
