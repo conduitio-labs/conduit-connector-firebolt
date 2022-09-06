@@ -96,7 +96,7 @@ func (c *Client) Login(ctx context.Context, params LoginParams) error {
 	var resp loginResponse
 	err = c.do(ctx, req, &resp)
 	if err != nil {
-		return fmt.Errorf("do login request: %w", err)
+		return fmt.Errorf("execute login request: %w", err)
 	}
 
 	c.accessToken = resp.AccessToken
