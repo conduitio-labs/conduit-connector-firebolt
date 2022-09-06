@@ -101,7 +101,7 @@ func TestParseGeneral(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := ParseGeneral(tt.cfg)
 			if err != nil && !tt.wantErr {
-				t.Errorf("parse error = \"%s\", wantErr %t", err.Error(), tt.wantErr)
+				t.Errorf("parse error = %q, wantErr %t", err.Error(), tt.wantErr)
 
 				return
 			}

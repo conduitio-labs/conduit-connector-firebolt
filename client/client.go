@@ -38,6 +38,8 @@ const (
 	engineByIDURL      = baseURL + "/core/v1/accounts/%s/engines/%s"
 	startEngineURL     = baseURL + "/core/v1/accounts/%s/engines/%s:start"
 
+	databaseURL = "https://%s/?database=%s"
+
 	// retryMax is the maximum number of retries.
 	retryMax = 3
 	// engineStatusCheckTimeout is a timeout for checking engine status.
@@ -137,7 +139,7 @@ func (c *Client) StartEngine(ctx context.Context) (bool, error) {
 	var engResp engineResponse
 	err = c.do(ctx, req, &engResp)
 	if err != nil {
-		return false, fmt.Errorf("do start engine request: %w", err)
+		return false, fmt.Errorf("execute start engine request: %w", err)
 	}
 
 	isEngineStarted := engResp.Engine.CurrentStatus == EngineStartedStatus
@@ -149,7 +151,7 @@ func (c *Client) StartEngine(ctx context.Context) (bool, error) {
 func (c *Client) RunQuery(ctx context.Context, query string) (*RunQueryResponse, error) {
 	b := bytes.NewBuffer([]byte(query))
 
-	req, err := c.newRequest(ctx, http.MethodPost, fmt.Sprintf("https://%s/?database=%s",
+	req, err := c.newRequest(ctx, http.MethodPost, fmt.Sprintf(databaseURL,
 		c.engineEndpoint, c.dbName), b)
 	if err != nil {
 		return nil, fmt.Errorf("create run query request: %w", err)

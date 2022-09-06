@@ -22,7 +22,7 @@ var (
 	// errInValidHTTPStatusCode occurs when the client gets invalid HTTP status code.
 	errInValidHTTPStatusCode = errors.New("invalid http status code")
 	// errAccountIDOrEngineIDIsEmpty occurs when the client has empty account id or engine id.
-	errAccountIDOrEngineIDIsEmpty = errors.New("account id or engine id is empty, please do login first")
+	errAccountIDOrEngineIDIsEmpty = errors.New("account id or engine id is empty, login wasn't successful")
 	// errCannotDetermineEngineURL occurs when it's impossible to determine an engine's URL.
 	errCannotDetermineEngineURL = errors.New("cannot determine engine url")
 	// ErrColumnsValuesLenMismatch occurs when trying to insert a row with a different column and value lengths.

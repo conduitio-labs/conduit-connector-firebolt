@@ -21,7 +21,7 @@ import (
 )
 
 const (
-	// KeyEmail is a config name for a email.
+	// KeyEmail is a config name for an email.
 	KeyEmail string = "email"
 	// KeyPassword is a config name for a password.
 	KeyPassword string = "password"

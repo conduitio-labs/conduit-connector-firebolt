@@ -101,7 +101,7 @@ func TestDestination_Write_Failed(t *testing.T) {
 	d := new(Destination)
 
 	t.Cleanup(func() {
-		err := clearData(ctx, cfg)
+		err = clearData(ctx, cfg)
 		is.NoErr(err)
 	})
 
@@ -131,13 +131,28 @@ func TestDestination_Write_Failed(t *testing.T) {
 
 func prepareConfig() (map[string]string, error) {
 	email := os.Getenv("FIREBOLT_EMAIL")
-	password := os.Getenv("FIREBOLT_PASSWORD")
-	accountName := os.Getenv("FIREBOLT_ACCOUNT_NAME")
-	engineName := os.Getenv("FIREBOLT_ENGINE_NAME")
-	db := os.Getenv("FIREBOLT_DB")
+	if email == "" {
+		return map[string]string{}, errors.New("missed env variable 'FIREBOLT_EMAIL'")
+	}
 
-	if email == "" || password == "" || accountName == "" || engineName == "" || db == "" {
-		return map[string]string{}, errors.New("missed env variable")
+	password := os.Getenv("FIREBOLT_PASSWORD")
+	if password == "" {
+		return map[string]string{}, errors.New("missed env variable 'FIREBOLT_PASSWORD'")
+	}
+
+	accountName := os.Getenv("FIREBOLT_ACCOUNT_NAME")
+	if accountName == "" {
+		return map[string]string{}, errors.New("missed env variable 'FIREBOLT_ACCOUNT_NAME'")
+	}
+
+	engineName := os.Getenv("FIREBOLT_ENGINE_NAME")
+	if engineName == "" {
+		return map[string]string{}, errors.New("missed env variable 'FIREBOLT_ENGINE_NAME'")
+	}
+
+	db := os.Getenv("FIREBOLT_DB")
+	if db == "" {
+		return map[string]string{}, errors.New("missed env variable 'FIREBOLT_DB'")
 	}
 
 	return map[string]string{
