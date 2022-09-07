@@ -195,7 +195,7 @@ func (c *Client) RefreshToken(ctx context.Context) error {
 	var loginResp loginResponse
 	err = c.do(ctx, req, &loginResp)
 	if err != nil {
-		return fmt.Errorf("do refresh token request: %w", err)
+		return fmt.Errorf("execute refresh token request: %w", err)
 	}
 
 	c.accessToken = loginResp.AccessToken
@@ -266,7 +266,7 @@ func (c *Client) getAccountIDByName(ctx context.Context) (string, error) {
 	var getAccountByIDResponse getAccountIDByNameResponse
 	err = c.do(ctx, req, &getAccountByIDResponse)
 	if err != nil {
-		return "", fmt.Errorf("do get account id request: %w", err)
+		return "", fmt.Errorf("execute get account id request: %w", err)
 	}
 
 	return getAccountByIDResponse.AccountID, nil
@@ -282,7 +282,7 @@ func (c *Client) getEngineURLByName(ctx context.Context) (string, error) {
 	var engResp getEngineURLByNameResponse
 	err = c.do(ctx, req, &engResp)
 	if err != nil {
-		return "", fmt.Errorf("do get engine id request: %w", err)
+		return "", fmt.Errorf("get engine id request: %w", err)
 	}
 
 	if len(engResp.Edges) == 0 {
@@ -303,7 +303,7 @@ func (c *Client) getEngineIDByName(ctx context.Context) (string, error) {
 	var engResp getEngineIDByNameResponse
 	err = c.do(ctx, req, &engResp)
 	if err != nil {
-		return "", fmt.Errorf("do get engine id request: %w", err)
+		return "", fmt.Errorf("execute get engine id request: %w", err)
 	}
 
 	return engResp.EngineID.EngineID, nil
@@ -319,7 +319,7 @@ func (c *Client) getEngineByID(ctx context.Context) (*engineResponse, error) {
 	var resp engineResponse
 	err = c.do(ctx, req, &resp)
 	if err != nil {
-		return nil, fmt.Errorf("do get engine id request: %w", err)
+		return nil, fmt.Errorf("execute get engine id request: %w", err)
 	}
 
 	return &resp, nil
