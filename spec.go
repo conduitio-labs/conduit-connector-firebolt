@@ -26,7 +26,7 @@ func Specification() sdk.Specification {
 		Name:    "firebolt",
 		Summary: "The Firebolt plugin for Conduit, written in Go.",
 		Description: "The Firebolt connector is one of Conduit plugins." +
-			"It provides the source and destination snowflake connector.",
+			"It provides the source and destination firebolt connector.",
 		Version: "v0.1.0",
 		Author:  "Meroxa, Inc.",
 	}
