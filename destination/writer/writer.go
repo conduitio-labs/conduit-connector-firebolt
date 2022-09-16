@@ -18,7 +18,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"strings"
+	"time"
 
 	sdk "github.com/conduitio/conduit-connector-sdk"
 
@@ -28,20 +30,40 @@ import (
 const (
 	// metadata related.
 	metadataTable = "table"
+
+	// column types.
+	typeTimestamp = "timestamp"
+	typeDate      = "date"
 )
 
-// Writer implements a write logic for Firebolt destination.
+var (
+	// time layouts.
+	layouts = []string{time.RFC3339, time.RFC3339Nano, time.Layout, time.ANSIC, time.UnixDate, time.RubyDate,
+		time.RFC822, time.RFC822Z, time.RFC850, time.RFC1123, time.RFC1123Z, time.RFC3339, time.RFC3339,
+		time.RFC3339Nano, time.Kitchen, time.Stamp, time.StampMilli, time.StampMicro, time.StampNano}
+)
+
+// Writer implements write logic for Firebolt destination.
 type Writer struct {
-	client *client.Client
-	table  string
+	client      *client.Client
+	table       string
+	columnTypes map[string]string
 }
 
 // NewWriter creates new instance of the Writer.
-func NewWriter(ctx context.Context, client *client.Client, table string) (*Writer, error) {
+func NewWriter(
+	ctx context.Context,
+	client *client.Client,
+	table string,
+) (*Writer, error) {
 	return &Writer{
 		client: client,
 		table:  table,
 	}, nil
+}
+
+func (w *Writer) SetColumnTypes(cl map[string]string) {
+	w.columnTypes = cl
 }
 
 // InsertRecord inserts a record into a Destination.
@@ -58,9 +80,14 @@ func (w *Writer) InsertRecord(ctx context.Context, record sdk.Record) error {
 		return ErrEmptyPayload
 	}
 
+	payload, err = w.convertPayload(payload)
+	if err != nil {
+		return fmt.Errorf("convert payload: %w", err)
+	}
+
 	columns, values := w.extractColumnsAndValues(payload)
 
-	if err := w.client.InsertRow(ctx, table, columns, values); err != nil {
+	if err = w.client.InsertRow(ctx, table, columns, values); err != nil {
 		return fmt.Errorf("insert row: %w", err)
 	}
 
@@ -130,4 +157,90 @@ func (w *Writer) extractColumnsAndValues(payload sdk.StructuredData) ([]string, 
 	}
 
 	return columns, values
+}
+
+func (w *Writer) convertPayload(data sdk.StructuredData) (sdk.StructuredData, error) {
+	result := make(sdk.StructuredData, len(data))
+
+	for key, value := range data {
+		if value == nil {
+			result[key] = value
+
+			continue
+		}
+
+		switch reflect.TypeOf(value).Kind() {
+		case reflect.Map, reflect.Slice:
+			bs, err := json.Marshal(value)
+			if err != nil {
+				return nil, fmt.Errorf("marshal: %w", err)
+			}
+
+			result[key] = string(bs)
+
+			continue
+		}
+
+		switch w.columnTypes[strings.ToLower(key)] {
+		case typeDate:
+			v, ok := value.(time.Time)
+			if ok {
+				result[key] = v.Format("2006-01-02")
+
+				continue
+			}
+
+			valueStr, ok := value.(string)
+			if ok {
+				timeValue, err := parseToTime(valueStr)
+				if err != nil {
+					return nil, fmt.Errorf("convert value to time.Time: %w", err)
+				}
+
+				result[key] = timeValue.Format("2006-01-02")
+
+				continue
+			}
+
+			return nil, ErrInvalidTypeForDateColumn
+		case typeTimestamp:
+			v, ok := value.(time.Time)
+			if ok {
+				result[key] = v.Format("2006-01-02 15:04:05")
+
+				continue
+			}
+
+			valueStr, ok := value.(string)
+			if ok {
+				timeValue, err := parseToTime(valueStr)
+				if err != nil {
+					return nil, fmt.Errorf("convert value to time.Time: %w", err)
+				}
+
+				result[key] = timeValue.Format("2006-01-02 15:04:05")
+
+				continue
+			}
+
+			return nil, ErrInvalidTypeForTimestampColumn
+		default:
+			result[key] = value
+		}
+	}
+
+	return result, nil
+}
+
+func parseToTime(val string) (time.Time, error) {
+	for _, l := range layouts {
+		timeValue, err := time.Parse(l, val)
+		if err != nil {
+			continue
+		}
+
+		return timeValue, nil
+	}
+
+	return time.Time{}, fmt.Errorf("%s - %w", val, ErrInvalidTimeLayout)
 }

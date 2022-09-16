@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"time"
 
 	sdk "github.com/conduitio/conduit-connector-sdk"
 	"github.com/matryer/is"
@@ -30,8 +31,9 @@ import (
 
 const (
 	testTable        = "CONDUIT_INTEGRATION_TEST_DESTINATION_TABLE"
-	queryCreateTable = "CREATE DIMENSION TABLE CONDUIT_INTEGRATION_TEST_DESTINATION_TABLE (id TEXT, test TEXT)"
-	queryDropTable   = "DROP TABLE IF EXISTS CONDUIT_INTEGRATION_TEST_DESTINATION_TABLE"
+	queryCreateTable = "CREATE DIMENSION TABLE CONDUIT_INTEGRATION_TEST_DESTINATION_TABLE" +
+		" (id INT, name TEXT, created_at DATE)"
+	queryDropTable = "DROP TABLE IF EXISTS CONDUIT_INTEGRATION_TEST_DESTINATION_TABLE"
 )
 
 func TestDestination_Write_Success(t *testing.T) {
@@ -63,14 +65,18 @@ func TestDestination_Write_Success(t *testing.T) {
 
 	count, err := d.Write(ctx, []sdk.Record{
 		{Payload: sdk.Change{After: sdk.StructuredData{
-			"id":   "1",
-			"test": "test",
+			"id":   1,
+			"name": "vasyl",
+			"created_at": time.Date(
+				2009, 11, 17, 20, 34, 58, 651387237, time.UTC),
 		}},
 			Operation: sdk.OperationSnapshot,
 		},
 		{Payload: sdk.Change{After: sdk.StructuredData{
-			"id":   "2",
-			"test": "test2",
+			"id":   2,
+			"name": "vasyl",
+			"created_at": time.Date(
+				2012, 12, 31, 20, 34, 58, 651387237, time.UTC),
 		}},
 			Operation: sdk.OperationCreate,
 		},

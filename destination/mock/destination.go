@@ -62,3 +62,15 @@ func (mr *MockWriterMockRecorder) InsertRecord(ctx, record interface{}) *gomock.
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertRecord", reflect.TypeOf((*MockWriter)(nil).InsertRecord), ctx, record)
 }
+
+// SetColumnTypes mocks base method.
+func (m *MockWriter) SetColumnTypes(cl map[string]string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SetColumnTypes", cl)
+}
+
+// SetColumnTypes indicates an expected call of SetColumnTypes.
+func (mr *MockWriterMockRecorder) SetColumnTypes(cl interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetColumnTypes", reflect.TypeOf((*MockWriter)(nil).SetColumnTypes), cl)
+}

@@ -29,6 +29,7 @@ import (
 // Writer defines a writer interface needed for the Destination.
 type Writer interface {
 	InsertRecord(ctx context.Context, record sdk.Record) error
+	SetColumnTypes(cl map[string]string)
 	Close(ctx context.Context) error
 }
 
@@ -126,6 +127,13 @@ func (d *Destination) Open(ctx context.Context) error {
 			return fmt.Errorf("wait engine started: %w", err)
 		}
 	}
+
+	clTypes, err := d.client.GetColumnTypes(ctx, d.config.Table)
+	if err != nil {
+		return fmt.Errorf("get column types:%w", err)
+	}
+
+	d.writer.SetColumnTypes(clTypes)
 
 	return nil
 }

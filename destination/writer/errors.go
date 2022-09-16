@@ -17,4 +17,9 @@ package writer
 import "errors"
 
 // ErrEmptyPayload occurs when there's no payload to insert.
-var ErrEmptyPayload = errors.New("payload is empty")
+var (
+	ErrEmptyPayload                  = errors.New("payload is empty")
+	ErrInvalidTimeLayout             = errors.New("invalid time layout")
+	ErrInvalidTypeForDateColumn      = errors.New("invalid type for date column")
+	ErrInvalidTypeForTimestampColumn = errors.New("invalid type for timestamp column")
+)

@@ -60,6 +60,26 @@ func (c *Client) InsertRow(ctx context.Context, table string, columns []string, 
 	return nil
 }
 
+// GetColumnTypes get types columns.
+func (c *Client) GetColumnTypes(
+	ctx context.Context,
+	table string,
+) (map[string]string, error) {
+	colTypes := make(map[string]string)
+
+	resp, err := c.RunQuery(ctx, fmt.Sprintf("describe %s", table))
+	if err != nil {
+		return nil, fmt.Errorf("run query: %w", err)
+	}
+
+	for i := range resp.Data {
+		colTypes[fmt.Sprintf("%v",
+			resp.Data[i]["column_name"])] = fmt.Sprintf("%v", resp.Data[i]["data_type"])
+	}
+
+	return colTypes, nil
+}
+
 func buildGetDataQuery(table string, fields []string, offset, limit int) string {
 	sb := sqlbuilder.NewSelectBuilder()
 
