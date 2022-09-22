@@ -29,7 +29,7 @@ import (
 
 const (
 	// metadata related.
-	metadataTable = "table"
+	metadataTable = "firebolt.table"
 
 	// column types.
 	typeTimestamp = "timestamp"

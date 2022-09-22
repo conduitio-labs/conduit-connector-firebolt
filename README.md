@@ -31,7 +31,7 @@ The Firebolt Destination takes a `sdk.Record` and parses it into a valid SQL que
 
 ### Table name
 
-If a record contains a `table` property in it’s metadata it will be inserted into that table,
+If a record contains a `firebolt.table` property in it’s metadata it will be inserted into that table,
 otherwise it will fall back to use the table configured in the connector.
 This way the Destination can support multiple tables in the same connector, as long as the user has proper access to those tables.
 
