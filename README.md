@@ -8,7 +8,8 @@ In order to work with Firebolt the connector needs access to an [engine](https:/
 Engines are computed clusters that run database workloads.
 
 If the engine you specified in the connector configuration is not running, the connector will start it for you.
-And it will periodically check the engine status until it starts.
+And it will periodically check the engine status until it starts. If it takes more than 10 minutes connector will return
+context cancelled error.
 The process of starting the engine may take some time, the connector at this moment will not be able to write or read data.
 
 ### Prerequisites
@@ -27,11 +28,12 @@ Run `make test` to run all the unit and integration tests. The integration tests
 
 ## Destination
 
-The Firebolt Destination takes a `sdk.Record` and parses it into a valid SQL query. When a SQL query is constructed the connector sends an HTTP request to your Firebolt engine endpoint. The Destination is designed to handle different payloads and keys.
+The Firebolt Destination takes a `sdk.Record` and parses it into a valid SQL query. 
+When a SQL query is constructed the connector sends an HTTP request to your Firebolt engine endpoint.
 
 ### Table name
 
-If a record contains a `firebolt.table` property in it’s metadata it will be inserted into that table,
+If a record contains a `firebolt.table` property in its metadata it will be inserted into that table,
 otherwise it will fall back to use the table configured in the connector.
 This way the Destination can support multiple tables in the same connector, as long as the user has proper access to those tables.
 
@@ -39,7 +41,8 @@ This way the Destination can support multiple tables in the same connector, as l
 
 Firebolt ([May 31, 2022 version](https://docs.firebolt.io/general-reference/release-notes-archive.html#may-31-2022))) doesn't 
 currently support deletes and updates.
-This means that regardless of the value of the `action` property the connector will insert data. There's no upsert mechanism as well.
+This means the destination supports only `OperationCreate` and `OperationSnapshot`operations types. 
+
 
 It also not possible to create `UNIQUE` constraint. There may be duplicates even if there's a primary key. 
 

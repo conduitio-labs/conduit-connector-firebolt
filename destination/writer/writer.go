@@ -123,7 +123,7 @@ func (w *Writer) structurizeData(data sdk.Data) (sdk.StructuredData, error) {
 		return nil, fmt.Errorf("unmarshal data into structured data: %w", err)
 	}
 
-	// convert keys to lower case
+	// Firebolt API returns columns names as lower case, it is converts keys to lower case too.
 	structuredDataLower := make(sdk.StructuredData)
 	for key, value := range structuredData {
 		if parsedValue, ok := value.(map[string]any); ok {
@@ -159,6 +159,7 @@ func (w *Writer) extractColumnsAndValues(payload sdk.StructuredData) ([]string, 
 	return columns, values
 }
 
+// convertPayload converts a sdk.StructureData values to a proper database types.
 func (w *Writer) convertPayload(data sdk.StructuredData) (sdk.StructuredData, error) {
 	result := make(sdk.StructuredData, len(data))
 
@@ -192,7 +193,7 @@ func (w *Writer) convertPayload(data sdk.StructuredData) (sdk.StructuredData, er
 
 			valueStr, ok := value.(string)
 			if ok {
-				timeValue, err := parseToTime(valueStr)
+				timeValue, err := w.parseToTime(valueStr)
 				if err != nil {
 					return nil, fmt.Errorf("convert value to time.Time: %w", err)
 				}
@@ -206,6 +207,8 @@ func (w *Writer) convertPayload(data sdk.StructuredData) (sdk.StructuredData, er
 		case typeTimestamp:
 			v, ok := value.(time.Time)
 			if ok {
+				// firebolt date type support this format
+				// https://docs.firebolt.io/general-reference/data-types.html#date-and-time
 				result[key] = v.Format("2006-01-02 15:04:05")
 
 				continue
@@ -213,11 +216,13 @@ func (w *Writer) convertPayload(data sdk.StructuredData) (sdk.StructuredData, er
 
 			valueStr, ok := value.(string)
 			if ok {
-				timeValue, err := parseToTime(valueStr)
+				timeValue, err := w.parseToTime(valueStr)
 				if err != nil {
 					return nil, fmt.Errorf("convert value to time.Time: %w", err)
 				}
 
+				// firebolt timestamp type support this format
+				// https://docs.firebolt.io/general-reference/data-types.html#timestamp
 				result[key] = timeValue.Format("2006-01-02 15:04:05")
 
 				continue
@@ -232,7 +237,7 @@ func (w *Writer) convertPayload(data sdk.StructuredData) (sdk.StructuredData, er
 	return result, nil
 }
 
-func parseToTime(val string) (time.Time, error) {
+func (w *Writer) parseToTime(val string) (time.Time, error) {
 	for _, l := range layouts {
 		timeValue, err := time.Parse(l, val)
 		if err != nil {

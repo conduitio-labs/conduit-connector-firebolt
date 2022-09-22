@@ -220,9 +220,7 @@ func (c *Client) WaitEngineStarted(ctx context.Context) error {
 				return fmt.Errorf("get engine status: %w", err)
 			}
 
-			sdk.Logger(ctx).Debug().Fields(map[string]any{
-				"engine_status": engineStatus,
-			}).Msgf("checking firebolt engine status")
+			sdk.Logger(ctx).Debug().Str("engine_status", engineStatus).Msgf("checking firebolt engine status")
 
 			switch engineStatus {
 			// if an engine is terminated (successfully or unsuccessfully) we need to restart it.
@@ -374,7 +372,12 @@ func (c *Client) do(_ context.Context, req *http.Request, out any) error {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("%w, %d", errInValidHTTPStatusCode, resp.StatusCode)
+		b, er := io.ReadAll(resp.Body)
+		if er != nil {
+			return fmt.Errorf("read body: %w", er)
+		}
+
+		return fmt.Errorf("%w, %d, body:%s ", errInValidHTTPStatusCode, resp.StatusCode, string(b))
 	}
 
 	defer resp.Body.Close()

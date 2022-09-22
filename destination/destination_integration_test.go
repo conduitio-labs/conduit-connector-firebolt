@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"os"
 	"testing"
-	"time"
 
 	sdk "github.com/conduitio/conduit-connector-sdk"
 	"github.com/matryer/is"
@@ -32,7 +31,7 @@ import (
 const (
 	testTable        = "CONDUIT_INTEGRATION_TEST_DESTINATION_TABLE"
 	queryCreateTable = "CREATE DIMENSION TABLE CONDUIT_INTEGRATION_TEST_DESTINATION_TABLE" +
-		" (id INT, name TEXT, created_at DATE)"
+		" (id string, name TEXT)"
 	queryDropTable = "DROP TABLE IF EXISTS CONDUIT_INTEGRATION_TEST_DESTINATION_TABLE"
 )
 
@@ -63,21 +62,21 @@ func TestDestination_Write_Success(t *testing.T) {
 	err = d.Open(ctx)
 	is.NoErr(err)
 
+	rc1 := map[string]any{
+		"id":   "1",
+		"name": "vasyl",
+	}
+
+	rc2 := map[string]any{
+		"id":   "2",
+		"name": "petro",
+	}
+
 	count, err := d.Write(ctx, []sdk.Record{
-		{Payload: sdk.Change{After: sdk.StructuredData{
-			"id":   1,
-			"name": "vasyl",
-			"created_at": time.Date(
-				2009, 11, 17, 20, 34, 58, 651387237, time.UTC),
-		}},
+		{Payload: sdk.Change{After: sdk.StructuredData(rc1)},
 			Operation: sdk.OperationSnapshot,
 		},
-		{Payload: sdk.Change{After: sdk.StructuredData{
-			"id":   2,
-			"name": "vasyl",
-			"created_at": time.Date(
-				2012, 12, 31, 20, 34, 58, 651387237, time.UTC),
-		}},
+		{Payload: sdk.Change{After: sdk.StructuredData(rc2)},
 			Operation: sdk.OperationCreate,
 		},
 	},
@@ -89,9 +88,15 @@ func TestDestination_Write_Success(t *testing.T) {
 
 	err = d.Teardown(ctx)
 	is.NoErr(err)
+
+	// check data in firebolt
+	data, err := d.client.GetRows(ctx, cfg[config.KeyTable], nil, 2, 0)
+
+	is.Equal(data[0], rc1)
+	is.Equal(data[1], rc2)
 }
 
-func TestDestination_Write_Failed(t *testing.T) {
+func TestDestination_Write_Failed_Wrong_Column_Name(t *testing.T) {
 	is := is.New(t)
 
 	cfg, err := prepareConfig()
@@ -121,15 +126,17 @@ func TestDestination_Write_Failed(t *testing.T) {
 		{Payload: sdk.Change{After: sdk.StructuredData{
 			"id":   "1",
 			"test": "test",
-		}}},
+		}},
+			Operation: sdk.OperationSnapshot},
 		{Payload: sdk.Change{After: sdk.StructuredData{
 			"id":   "2",
 			"test": "test2",
-		}}},
+		}},
+			Operation: sdk.OperationSnapshot},
 	},
 	)
 
-	is.Equal(err != nil, true)
+	is.True(err != nil)
 
 	err = d.Teardown(ctx)
 	is.NoErr(err)

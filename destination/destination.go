@@ -141,6 +141,8 @@ func (d *Destination) Open(ctx context.Context) error {
 // Write writes a record into a Destination.
 func (d *Destination) Write(ctx context.Context, records []sdk.Record) (int, error) {
 	for i, record := range records {
+		// Firebolt doesn't support update and delete operations.
+		// Destination inserts record if operation value is snapshot or create
 		err := sdk.Util.Destination.Route(ctx, record,
 			d.writer.InsertRecord,
 			nil,

@@ -18,8 +18,6 @@ import (
 	sdk "github.com/conduitio/conduit-connector-sdk"
 )
 
-type Spec struct{}
-
 // Specification returns the Plugin's Specification.
 func Specification() sdk.Specification {
 	return sdk.Specification{
@@ -28,6 +26,6 @@ func Specification() sdk.Specification {
 		Description: "The Firebolt connector is one of Conduit plugins." +
 			"It provides the source and destination firebolt connector.",
 		Version: "v0.1.0",
-		Author:  "Meroxa, Inc.",
+		Author:  "Meroxa, Inc.& Yalantis",
 	}
 }
