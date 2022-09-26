@@ -28,7 +28,7 @@ import (
 
 const (
 	// metadata related.
-	metadataTable = "table"
+	metadataTable = "firebolt.table"
 )
 
 // SnapshotIterator snapshot iterator.
