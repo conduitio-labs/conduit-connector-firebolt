@@ -82,7 +82,7 @@ func (i *SnapshotIterator) Setup(ctx context.Context, p sdk.Position) error {
 	i.indexInBatch = index
 	i.batchID = batchID
 
-	rows, err := i.client.GetRows(ctx, i.primaryKey, i.table, i.columns, i.batchSize, i.batchID)
+	rows, err := i.client.GetRows(ctx, i.table, i.primaryKey, i.columns, i.batchSize, i.batchID)
 	if err != nil {
 		return fmt.Errorf("get rows: %w", err)
 	}
@@ -105,7 +105,7 @@ func (i *SnapshotIterator) HasNext(ctx context.Context) (bool, error) {
 		i.indexInBatch = 0
 	}
 
-	i.currentBatch, err = i.client.GetRows(ctx, i.primaryKey, i.table, i.columns, i.batchSize, i.batchID)
+	i.currentBatch, err = i.client.GetRows(ctx, i.table, i.primaryKey, i.columns, i.batchSize, i.batchID)
 	if err != nil {
 		return false, err
 	}
