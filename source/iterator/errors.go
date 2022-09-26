@@ -12,17 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package firebolt
+package iterator
 
 import (
-	sdk "github.com/conduitio/conduit-connector-sdk"
-
-	"github.com/conduitio-labs/conduit-connector-firebolt/destination"
-	"github.com/conduitio-labs/conduit-connector-firebolt/source"
+	"errors"
 )
 
-var Connector = sdk.Connector{
-	NewSpecification: Specification,
-	NewSource:        source.New,
-	NewDestination:   destination.New,
-}
+var (
+	ErrKeyIsNotExist = errors.New("key is not exist")
+)
