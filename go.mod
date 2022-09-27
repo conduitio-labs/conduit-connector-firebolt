@@ -9,9 +9,8 @@ require (
 	github.com/go-playground/validator/v10 v10.11.0
 	github.com/golang/mock v1.6.0
 	github.com/hashicorp/go-retryablehttp v0.7.1
-	github.com/huandu/go-sqlbuilder v1.13.0
+	github.com/huandu/go-sqlbuilder v1.16.0
 	github.com/matryer/is v1.4.0
-	go.uber.org/goleak v1.1.12
 	go.uber.org/multierr v1.8.0
 )
 
@@ -33,6 +32,7 @@ require (
 	github.com/rs/zerolog v1.27.0 // indirect
 	go.buf.build/grpc/go/conduitio/conduit-connector-protocol v1.3.3 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
+	go.uber.org/goleak v1.1.12 // indirect
 	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
 	golang.org/x/net v0.0.0-20220621193019-9d032be2e588 // indirect
 	golang.org/x/sys v0.0.0-20220615213510-4f61da869c0c // indirect
