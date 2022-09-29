@@ -49,7 +49,7 @@ func ParseSDKPosition(p sdk.Position) (Position, error) {
 	return pos, nil
 }
 
-// ConvertToSDKPosition formats and returns sdk.Position.
-func (p Position) ConvertToSDKPosition() (sdk.Position, error) {
+// ToSDKPosition formats and returns sdk.Position.
+func (p Position) ToSDKPosition() (sdk.Position, error) {
 	return json.Marshal(p)
 }

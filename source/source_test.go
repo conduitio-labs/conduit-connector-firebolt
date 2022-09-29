@@ -28,7 +28,7 @@ import (
 )
 
 func TestSource_Configure(t *testing.T) {
-	s := Source{}
+	s := New()
 
 	tests := []struct {
 		name    string
@@ -181,37 +181,41 @@ func TestSource_Read(t *testing.T) {
 	})
 
 	t.Run("failed_has_next", func(t *testing.T) {
+		errGetData := errors.New("get data: failed")
+
 		ctrl := gomock.NewController(t)
 		ctx := context.Background()
 
 		it := mock.NewMockIterator(ctrl)
-		it.EXPECT().HasNext(ctx).Return(true, errors.New("get data: failed"))
+		it.EXPECT().HasNext(ctx).Return(true, errGetData)
 
 		s := Source{
 			iterator: it,
 		}
 
 		_, err := s.Read(ctx)
-		if err == nil {
-			t.Errorf("want error")
+		if !errors.Is(err, errGetData) {
+			t.Errorf("want error: %v, got error: %v", errGetData, err)
 		}
 	})
 
 	t.Run("failed_next", func(t *testing.T) {
+		errNoKey := errors.New("key doesn't exist")
+
 		ctrl := gomock.NewController(t)
 		ctx := context.Background()
 
 		it := mock.NewMockIterator(ctrl)
 		it.EXPECT().HasNext(ctx).Return(true, nil)
-		it.EXPECT().Next(ctx).Return(sdk.Record{}, errors.New("key is not exist"))
+		it.EXPECT().Next(ctx).Return(sdk.Record{}, errNoKey)
 
 		s := Source{
 			iterator: it,
 		}
 
 		_, err := s.Read(ctx)
-		if err == nil {
-			t.Errorf("want error")
+		if !errors.Is(err, errNoKey) {
+			t.Errorf("want error: %v, got error: %v", errNoKey, err)
 		}
 	})
 }
@@ -234,19 +238,21 @@ func TestSource_Teardown(t *testing.T) {
 	})
 
 	t.Run("failed", func(t *testing.T) {
+		errTeardownFailed := errors.New("teardown failed")
+
 		ctrl := gomock.NewController(t)
 		ctx := context.Background()
 
 		it := mock.NewMockIterator(ctrl)
-		it.EXPECT().Stop(ctx).Return(errors.New("some error"))
+		it.EXPECT().Stop(ctx).Return(errTeardownFailed)
 
 		s := Source{
 			iterator: it,
 		}
 
 		err := s.Teardown(ctx)
-		if err == nil {
-			t.Errorf("want error")
+		if !errors.Is(err, errTeardownFailed) {
+			t.Errorf("want error: %v, got error: %v", errTeardownFailed, err)
 		}
 	})
 }

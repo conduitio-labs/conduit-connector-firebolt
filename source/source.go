@@ -89,7 +89,7 @@ func (s *Source) Parameters() map[string]sdk.Parameter {
 		config.KeyPrimaryKey: {
 			Default:     "",
 			Required:    true,
-			Description: "Column name that records should use for their `Key` fields.",
+			Description: "Columns names that records should use for their `Key` fields.",
 		},
 		config.KeyBatchSize: {
 			Default:     "100",
@@ -125,21 +125,14 @@ func (s *Source) Open(ctx context.Context, rp sdk.Position) error {
 		return fmt.Errorf("client login: %w", err)
 	}
 
-	s.iterator = iterator.NewSnapshotIterator(fireboltClient, s.config.BatchSize, s.config.Columns, s.config.Table,
-		s.config.PrimaryKey)
+	s.iterator = iterator.NewSnapshotIterator(fireboltClient, s.config.BatchSize, s.config.Table, s.config.Columns,
+		s.config.PrimaryKeys)
 
-	isEngineStarted, err := fireboltClient.StartEngine(ctx)
-	if err != nil {
-		return fmt.Errorf("start engine: %w", err)
-	}
+	ctxWithTimeOut, cancel := context.WithTimeout(ctx, 10*time.Minute)
+	defer cancel()
 
-	if !isEngineStarted {
-		ctxWithTimeOut, cancel := context.WithTimeout(ctx, 10*time.Minute)
-		defer cancel()
-
-		if err = fireboltClient.WaitEngineStarted(ctxWithTimeOut); err != nil {
-			return fmt.Errorf("wait engine started: %w", err)
-		}
+	if err = fireboltClient.WaitEngineStarted(ctxWithTimeOut); err != nil {
+		return fmt.Errorf("wait engine started: %w", err)
 	}
 
 	if err = s.iterator.Setup(ctx, rp); err != nil {
@@ -183,4 +176,9 @@ func (s *Source) Teardown(ctx context.Context) error {
 // Ack check if record with position was recorded.
 func (s *Source) Ack(ctx context.Context, p sdk.Position) error {
 	return s.iterator.Ack(ctx, p)
+}
+
+// SetIterator set iterator, using for testing purpose.
+func (s *Source) SetIterator(it Iterator) {
+	s.iterator = it
 }

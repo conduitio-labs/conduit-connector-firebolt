@@ -43,8 +43,8 @@ type Source struct {
 	Columns []string
 	// BatchSize - size of batch.
 	BatchSize int `validate:"gte=1,lte=100"`
-	// Key - Column name that records should use for their `Key` fields.
-	PrimaryKey string `validate:"required"`
+	// PrimaryKeys - columns names that records should use for their `Key` fields.
+	PrimaryKeys []string `validate:"required"`
 }
 
 // ParseSource attempts to parse plugins.Config into a Source struct.
@@ -55,13 +55,16 @@ func ParseSource(cfg map[string]string) (Source, error) {
 	}
 
 	source := Source{
-		General:    general,
-		BatchSize:  defaultBatchSize,
-		PrimaryKey: cfg[KeyPrimaryKey],
+		General:   general,
+		BatchSize: defaultBatchSize,
 	}
 
 	if colsRaw := cfg[KeyColumns]; colsRaw != "" {
 		source.Columns = strings.Split(colsRaw, ",")
+	}
+
+	if colsRaw := cfg[KeyPrimaryKey]; colsRaw != "" {
+		source.PrimaryKeys = strings.Split(colsRaw, ",")
 	}
 
 	if cfg[KeyBatchSize] != "" {

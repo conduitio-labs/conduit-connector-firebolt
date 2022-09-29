@@ -51,6 +51,12 @@ func TestParseSDKPosition(t *testing.T) {
 			wantErr:     true,
 			expectedErr: errors.New("json: cannot unmarshal string into Go struct field Position.BatchID of type int").Error(),
 		},
+		{
+			name:    "nil position",
+			in:      nil,
+			wantErr: false,
+			want:    Position{},
+		},
 	}
 
 	for _, tt := range tests {
@@ -76,5 +82,24 @@ func TestParseSDKPosition(t *testing.T) {
 				t.Errorf("parse = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestCombinePosition(t *testing.T) {
+	original := Position{
+		IndexInBatch: 10,
+		BatchID:      100,
+	}
+	converted, err := original.ToSDKPosition()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	back, err := ParseSDKPosition(converted)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(back, original) {
+		t.Errorf("parse = %v, want %v", back, original)
 	}
 }

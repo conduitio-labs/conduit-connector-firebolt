@@ -35,12 +35,14 @@ const (
 
 	queryDropTable = "DROP TABLE IF EXISTS CONDUIT_INTEGRATION_TEST_TABLE"
 
-	queryInsertTestValues = "INSERT INTO CONDUIT_INTEGRATION_TEST_TABLE VALUES ('1', 'foo'), ('2', 'bar'), ('3', 'test')"
+	queryInsertTestValues = "INSERT INTO CONDUIT_INTEGRATION_TEST_TABLE VALUES ('1', 'test1'), ('2', 'test2'), " +
+		"('3', 'test3')"
 )
 
 func TestSource_Snapshot(t *testing.T) {
 	cfg, err := prepareConfig()
 	if err != nil {
+		t.Log(err)
 		t.Skip()
 	}
 
@@ -51,7 +53,7 @@ func TestSource_Snapshot(t *testing.T) {
 		t.Error(err)
 	}
 
-	s := new(Source)
+	s := New()
 
 	defer clearData(ctx, cfg) // nolint:errcheck,nolintlint
 
@@ -73,7 +75,7 @@ func TestSource_Snapshot(t *testing.T) {
 	}
 
 	var wantedKey sdk.StructuredData
-	wantedKey = map[string]interface{}{"id": "1"}
+	wantedKey = map[string]any{"id": "1", "test": "test1"}
 
 	if !reflect.DeepEqual(r.Key, wantedKey) {
 		t.Error(errors.New("wrong record key"))
@@ -97,7 +99,19 @@ func TestSource_Snapshot(t *testing.T) {
 		t.Error(err)
 	}
 
-	wantedKey = map[string]interface{}{"id": "2"}
+	wantedKey = map[string]any{"id": "2", "test": "test2"}
+
+	if !reflect.DeepEqual(r.Key, wantedKey) {
+		t.Error(errors.New("wrong record key"))
+	}
+
+	// Check third row.
+	r, err = s.Read(ctx)
+	if err != nil {
+		t.Error(err)
+	}
+
+	wantedKey = map[string]any{"id": "3", "test": "test3"}
 
 	if !reflect.DeepEqual(r.Key, wantedKey) {
 		t.Error(errors.New("wrong record key"))
@@ -112,6 +126,7 @@ func TestSource_Snapshot(t *testing.T) {
 func TestSource_Snapshot_Empty_Table(t *testing.T) {
 	cfg, err := prepareConfig()
 	if err != nil {
+		t.Log(err)
 		t.Skip()
 	}
 
@@ -124,7 +139,7 @@ func TestSource_Snapshot_Empty_Table(t *testing.T) {
 
 	defer clearData(ctx, cfg) // nolint:errcheck,nolintlint
 
-	s := new(Source)
+	s := New()
 
 	err = s.Configure(ctx, cfg)
 	if err != nil {
@@ -139,6 +154,7 @@ func TestSource_Snapshot_Empty_Table(t *testing.T) {
 
 	// Check read from empty table.
 	_, err = s.Read(ctx)
+	// expect ErrBackoffRetry error because table is empty.
 	if err != sdk.ErrBackoffRetry {
 		t.Error(err)
 	}
@@ -167,7 +183,7 @@ func prepareConfig() (map[string]string, error) {
 		config.KeyEngineName:  engineName,
 		config.KeyDB:          db,
 		config.KeyTable:       testTable,
-		config.KeyPrimaryKey:  "id",
+		config.KeyPrimaryKey:  "id,test",
 		config.KeyBatchSize:   "100",
 	}, nil
 }
@@ -183,6 +199,12 @@ func prepareData(ctx context.Context, cfg map[string]string) error {
 	})
 	if err != nil {
 		return fmt.Errorf("client login: %w", err)
+	}
+
+	// drop table for case it wasn't removed previous time.
+	_, err = cl.RunQuery(ctx, queryDropTable)
+	if err != nil {
+		return err
 	}
 
 	// create table.

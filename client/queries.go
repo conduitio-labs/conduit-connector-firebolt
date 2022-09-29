@@ -24,11 +24,11 @@ import (
 // GetRows get rows from table.
 func (c *Client) GetRows(
 	ctx context.Context,
-	table, primaryKey string,
-	columns []string,
+	table string,
+	primaryKeys, columns []string,
 	limit, offset int,
 ) ([]map[string]any, error) {
-	q := buildGetDataQuery(table, primaryKey, columns, offset, limit)
+	q := buildGetDataQuery(table, primaryKeys, columns, offset, limit)
 	resp, err := c.RunQuery(ctx, q)
 	if err != nil {
 		return nil, fmt.Errorf("run query: %w", err)
@@ -80,7 +80,7 @@ func (c *Client) GetColumnTypes(
 	return colTypes, nil
 }
 
-func buildGetDataQuery(table, primaryKey string, fields []string, offset, limit int) string {
+func buildGetDataQuery(table string, primaryKey, fields []string, offset, limit int) string {
 	sb := sqlbuilder.NewSelectBuilder()
 
 	if len(fields) == 0 {
@@ -92,7 +92,7 @@ func buildGetDataQuery(table, primaryKey string, fields []string, offset, limit 
 	sb.From(table)
 	sb.Offset(offset)
 	sb.Limit(limit)
-	sb.OrderBy(primaryKey)
+	sb.OrderBy(primaryKey...)
 
 	return sb.String()
 }

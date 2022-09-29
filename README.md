@@ -63,27 +63,25 @@ It also not possible to create `UNIQUE` constraint. There may be duplicates even
 
 The config passed to `Configure` can contain the following fields.
 
-| name             | description                                                                                                                                           | required  | example              |
-| ---------------- |-------------------------------------------------------------------------------------------------------------------------------------------------------| --------- | -------------------- |
-| `email`          | The email address of your Firebolt account.                                                                                                           | **true**  | email@test.com       |
-| `password`       | The password of your Firebolt account.                                                                                                                | **true**  | password             |
-| `accountName`    | The account name of your Firebolt account.                                                                                                            | **true**  | `super_organization` |
-| `engineName`     | The engine name of your Firebolt engine.                                                                                                              | **true**  | `my_super_engine`    |
-| `db`             | The name of your database.                                                                                                                            | **true**  | test                 |
-| `table`          | The name of a table in the database that the connector should read from, by default.                                                                  | **true**  | clients              |
-| `columns`        | Comma separated list of column names that should be included in the each Record's payload. By default: all columns.                                   | **false** | "id,name,age"        |
-| `primaryKey`     | The name of the column that records should use for their `key` fields.                                                                                          | **true**  | "id"                 |
-| `batchSize`      | Size of batch. By default is 100. <b>Important:</b> Please, don’t update this variable after running the pipeline, as this will cause position issues. | **false** | "100"                |
+| name          | description                                                                                                                                            | required  | example              |
+|---------------|--------------------------------------------------------------------------------------------------------------------------------------------------------| --------- | -------------------- |
+| `email`       | The email address of your Firebolt account.                                                                                                            | **true**  | email@test.com       |
+| `password`    | The password of your Firebolt account.                                                                                                                 | **true**  | password             |
+| `accountName` | The account name of your Firebolt account.                                                                                                             | **true**  | `super_organization` |
+| `engineName`  | The engine name of your Firebolt engine.                                                                                                               | **true**  | `my_super_engine`    |
+| `db`          | The name of your database.                                                                                                                             | **true**  | test                 |
+| `table`       | The name of a table in the database that the connector should read from, by default.                                                                   | **true**  | clients              |
+| `columns`     | Comma separated list of column names that should be included in the each Record's payload. By default: all columns.                                    | **false** | "id,name,age"        |
+| `primaryKeys` | Comma separated list of column names that records should use for their `key` fields.                                                                   | **true**  | "id"                 |
+| `batchSize`   | Size of batch. By default is 100. <b>Important:</b> Please, don’t update this variable after running the pipeline, as this will cause position issues. | **false** | "100"                |
 
 ### Snapshot iterator
 
 The snapshot iterator starts getting data from the table using post request with select query with limit and offset 
-ordering by primary key.
-For example `select * from {table} limit 20 offset 0 order by {primaryKey}`. Batch size
-is configurable, offset value is zero for the first time. Iterator saves rows from table to `currentBatch` slice variable.
-The Iterator `HasNext` method checks if the next element exists in the currentBatch using variable `index` and,
-if necessary, changes the `offset` and runs a select query to get a new data with the new offset. Method `Next`
-gets next element and converts it to `Record` sets metadata variable table, increases `index`.
+ordering by primary keys.
+
+
+If snapshot stops, it will continue works from last recorded row.
 
 Example of position:
 
@@ -94,27 +92,6 @@ Example of position:
 }
 ```
 
-If snapshot stops, it will parse a position from the last record. The position has fields: `IndexInBatch` -
-this is index of the element in the current batch, the last element that has been recorded; `BatchID` -
-shows the last value offset that iterator used to get data query. Iterator runs a query to get the data
-from the table with the `batchSize` and the offset that was taken from the position. The `Index` value will be
-the Element plus one, as the iterator tries to find the next element in the current batch. If `index` > `batchSize`
-the iterator will change `BatchID` to the next one and set `index` to zero.
-
-For example, we get snapshot position in `Open` function:
-
-```json
-{
-  "IndexInBatch": 4,
-  "BatchID": 20
-}
-```
-
-The last recorded position has `BatchID` = 20, which means that the iterator last executed a query with an
-offset value of 20, the iterator will execute the same query with the same offset value.
-The iterator gets a batch of rows from a table. `IndexInBatch` is the last element index in
-this batch that was processed. The iterator looks up the next element in the batch (with index = 5)
-and converts it into a record.
 
 ### Known limitations
 

@@ -19,5 +19,5 @@ import (
 )
 
 var (
-	ErrKeyIsNotExist = errors.New("key is not exist")
+	ErrNoKey = errors.New("key doesn't exist")
 )

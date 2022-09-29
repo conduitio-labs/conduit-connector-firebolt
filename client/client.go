@@ -209,6 +209,26 @@ func (c *Client) RefreshToken(ctx context.Context) error {
 func (c *Client) WaitEngineStarted(ctx context.Context) error {
 	ticker := time.NewTicker(engineStatusCheckTimeout)
 
+	if c.accountID == "" || c.engineID == "" {
+		return errAccountIDOrEngineIDIsEmpty
+	}
+
+	req, err := c.newRequest(ctx, http.MethodPost, fmt.Sprintf(startEngineURL, c.accountID, c.engineID), nil)
+	if err != nil {
+		return fmt.Errorf("create start engine request: %w", err)
+	}
+
+	var engResp engineResponse
+	err = c.do(ctx, req, &engResp)
+	if err != nil {
+		return fmt.Errorf("execute start engine request: %w", err)
+	}
+
+	// engine is running.
+	if engResp.Engine.CurrentStatus == EngineStartedStatus {
+		return nil
+	}
+
 	for {
 		select {
 		case <-ctx.Done():
