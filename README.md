@@ -87,8 +87,7 @@ Example of position:
 
 ```json
 {
-  "IndexInBatch": 2,
-  "BatchID": 10
+  "RowNumber": 2
 }
 ```
 

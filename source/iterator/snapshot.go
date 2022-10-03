@@ -17,8 +17,8 @@ package iterator
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"strings"
 	"time"
 
 	sdk "github.com/conduitio/conduit-connector-sdk"
@@ -32,14 +32,16 @@ const (
 	metadataTable = "firebolt.table"
 )
 
+var (
+	ErrNoKey = errors.New("key doesn't exist")
+)
+
 // SnapshotIterator snapshot iterator.
 type SnapshotIterator struct {
 	// firebolt client.
 	client *client.Client
-	// index - current index of element in current batch which iterator converts to record.
-	indexInBatch int
-	// batchID - current batch id, show what batch iterator uses, using in query to get currentBatch.
-	batchID int
+	// rowNumber - current number of row which iterator converts to record.
+	rowNumber int
 	// batchSize size of batch.
 	batchSize int
 	// currentBatch - rows in current batch from table.
@@ -71,18 +73,17 @@ func (i *SnapshotIterator) Setup(ctx context.Context, p sdk.Position) error {
 	if p != nil {
 		pos, err := position.ParseSDKPosition(p)
 		if err != nil {
-			return nil
+			return err
 		}
 
-		i.indexInBatch = pos.IndexInBatch + 1
-		i.batchID = pos.BatchID
+		i.rowNumber = pos.RowNumber + 1
 	}
 
-	rows, err := i.client.GetRows(ctx, i.table, i.primaryKeys, i.columns, i.batchSize, i.batchID)
+	rows, err := i.client.GetRows(ctx, i.table, i.primaryKeys, i.columns, i.batchSize, i.rowNumber)
 	if err != nil {
-		sdk.Logger(ctx).Debug().Str("table", i.table).Str("primaryKey",
-			strings.Join(i.primaryKeys, ",")).Str("columns", strings.Join(i.columns, ",")).
-			Int("batchSize", i.batchSize).Int("batchID", i.batchID).Msg("get rows parameters")
+		sdk.Logger(ctx).Debug().Str("table", i.table).Strs("primaryKeys", i.primaryKeys).
+			Strs("columns", i.columns).Int("batchSize", i.batchSize).
+			Int("rowNumber", i.rowNumber).Msg("get rows parameters")
 
 		return fmt.Errorf("get rows: %w", err)
 	}
@@ -96,43 +97,34 @@ func (i *SnapshotIterator) Setup(ctx context.Context, p sdk.Position) error {
 func (i *SnapshotIterator) HasNext(ctx context.Context) (bool, error) {
 	var err error
 
-	if i.indexInBatch < len(i.currentBatch) {
+	if len(i.currentBatch) > 0 {
 		return true, nil
 	}
 
-	if i.indexInBatch >= i.batchSize {
-		i.batchID += i.batchSize
-		i.indexInBatch = 0
-	}
-
-	i.currentBatch, err = i.client.GetRows(ctx, i.table, i.primaryKeys, i.columns, i.batchSize, i.batchID)
+	i.currentBatch, err = i.client.GetRows(ctx, i.table, i.primaryKeys, i.columns, i.batchSize, i.rowNumber)
 	if err != nil {
 		return false, err
 	}
 
-	if len(i.currentBatch) == 0 || len(i.currentBatch) <= i.indexInBatch {
-		return false, nil
-	}
-
-	return true, nil
+	return len(i.currentBatch) > 0, nil
 }
 
 // Next get new record.
 func (i *SnapshotIterator) Next(ctx context.Context) (sdk.Record, error) {
-	pos := position.NewPosition(i.indexInBatch, i.batchID)
+	pos := position.NewPosition(i.rowNumber)
 
-	payload, err := json.Marshal(i.currentBatch[i.indexInBatch])
+	payload, err := json.Marshal(i.currentBatch[0])
 	if err != nil {
 		return sdk.Record{}, fmt.Errorf("marshal error : %w", err)
 	}
 
 	keysMap := make(map[string]any)
 	for _, val := range i.primaryKeys {
-		if _, ok := i.currentBatch[i.indexInBatch][val]; !ok {
+		if _, ok := i.currentBatch[0][val]; !ok {
 			return sdk.Record{}, fmt.Errorf("key %v, %w", val, ErrNoKey)
 		}
 
-		keysMap[val] = i.currentBatch[i.indexInBatch][val]
+		keysMap[val] = i.currentBatch[0][val]
 	}
 
 	p, err := pos.ToSDKPosition()
@@ -140,7 +132,11 @@ func (i *SnapshotIterator) Next(ctx context.Context) (sdk.Record, error) {
 		return sdk.Record{}, err
 	}
 
-	i.indexInBatch++
+	if len(i.currentBatch) > 1 {
+		i.currentBatch = i.currentBatch[1:]
+	} else {
+		i.currentBatch = nil
+	}
 
 	metadata := sdk.Metadata{metadataTable: i.table}
 	metadata.SetCreatedAt(time.Now())

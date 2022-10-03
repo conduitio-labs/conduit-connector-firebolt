@@ -25,13 +25,12 @@ import (
 
 func TestParseSDKPosition(t *testing.T) {
 	pos := Position{
-		IndexInBatch: 10,
-		BatchID:      100,
+		RowNumber: 10,
 	}
 
 	poBytes, _ := json.Marshal(pos)
 
-	wrongPosBytes, _ := json.Marshal(map[string]string{"BatchID": "test"})
+	wrongPosBytes, _ := json.Marshal(map[string]string{"RowNumber": "test"})
 
 	tests := []struct {
 		name        string
@@ -49,7 +48,7 @@ func TestParseSDKPosition(t *testing.T) {
 			name:        "invalid struct",
 			in:          sdk.Position(wrongPosBytes),
 			wantErr:     true,
-			expectedErr: errors.New("json: cannot unmarshal string into Go struct field Position.BatchID of type int").Error(),
+			expectedErr: errors.New("json: cannot unmarshal string into Go struct field Position.RowNumber of type int").Error(),
 		},
 		{
 			name:    "nil position",
@@ -87,8 +86,7 @@ func TestParseSDKPosition(t *testing.T) {
 
 func TestCombinePosition(t *testing.T) {
 	original := Position{
-		IndexInBatch: 10,
-		BatchID:      100,
+		RowNumber: 10,
 	}
 	converted, err := original.ToSDKPosition()
 	if err != nil {

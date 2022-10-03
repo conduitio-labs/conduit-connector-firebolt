@@ -22,15 +22,13 @@ import (
 
 // Position represents Snowflake position.
 type Position struct {
-	// IndexInBatch - index position in current batch.
-	IndexInBatch int
-	// BatchID - batch id.
-	BatchID int
+	// RowNumber - number of row.
+	RowNumber int
 }
 
 // NewPosition create position.
-func NewPosition(element int, batchID int) *Position {
-	return &Position{IndexInBatch: element, BatchID: batchID}
+func NewPosition(rowNumber int) *Position {
+	return &Position{RowNumber: rowNumber}
 }
 
 // ParseSDKPosition parses SDK position and returns Position.
