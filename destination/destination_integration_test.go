@@ -90,7 +90,7 @@ func TestDestination_Write_Success(t *testing.T) {
 	is.NoErr(err)
 
 	// check data in firebolt
-	data, err := d.client.GetRows(ctx, cfg[config.KeyTable], nil, 2, 0)
+	data, err := d.client.GetRows(ctx, cfg[config.KeyTable], []string{cfg[config.KeyPrimaryKey]}, nil, 2, 0)
 
 	is.Equal(data[0], rc1)
 	is.Equal(data[1], rc2)

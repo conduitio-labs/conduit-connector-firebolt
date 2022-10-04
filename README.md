@@ -56,3 +56,43 @@ It also not possible to create `UNIQUE` constraint. There may be duplicates even
 | `engineName`  | The engine name of your Firebolt engine.                                            | **true** | `my_super_engine`    |
 | `db`          | The name of your database.                                                          | **true** | `some_database`      |
 | `table`       | The name of a table in the database that the connector should write to, by default. | **true** | `some_table`         |
+
+## Source
+
+### Configuration
+
+The config passed to `Configure` can contain the following fields.
+
+| name          | description                                                                                                                                            | required  | example              |
+|---------------|--------------------------------------------------------------------------------------------------------------------------------------------------------| --------- | -------------------- |
+| `email`       | The email address of your Firebolt account.                                                                                                            | **true**  | email@test.com       |
+| `password`    | The password of your Firebolt account.                                                                                                                 | **true**  | password             |
+| `accountName` | The account name of your Firebolt account.                                                                                                             | **true**  | `super_organization` |
+| `engineName`  | The engine name of your Firebolt engine.                                                                                                               | **true**  | `my_super_engine`    |
+| `db`          | The name of your database.                                                                                                                             | **true**  | test                 |
+| `table`       | The name of a table in the database that the connector should read from, by default.                                                                   | **true**  | clients              |
+| `columns`     | Comma separated list of column names that should be included in the each Record's payload. By default: all columns.                                    | **false** | "id,name,age"        |
+| `primaryKeys` | Comma separated list of column names that records should use for their `key` fields.                                                                   | **true**  | "id"                 |
+| `batchSize`   | Size of batch. By default is 100. <b>Important:</b> Please, don’t update this variable after running the pipeline, as this will cause position issues. | **false** | "100"                |
+
+### Snapshot iterator
+
+The snapshot iterator starts getting data from the table using post request with select query with limit and offset 
+ordering by primary keys.
+
+
+If snapshot stops, it will continue works from last recorded row.
+
+Example of position:
+
+```json
+{
+  "RowNumber": 2
+}
+```
+
+
+### Known limitations
+
+Firebolt ([May 31, 2022 version](https://docs.firebolt.io/general-reference/release-notes-archive.html#may-31-2022)) doesn't
+currently support deletes and updates. Change Data Captured iterator not implemented.
