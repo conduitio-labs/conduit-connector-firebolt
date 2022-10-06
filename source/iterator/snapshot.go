@@ -138,6 +138,8 @@ func (i *SnapshotIterator) Next(ctx context.Context) (sdk.Record, error) {
 		i.currentBatch = nil
 	}
 
+	i.rowNumber++
+
 	metadata := sdk.Metadata{metadataTable: i.table}
 	metadata.SetCreatedAt(time.Now())
 
