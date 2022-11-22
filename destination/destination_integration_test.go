@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"time"
 
 	sdk "github.com/conduitio/conduit-connector-sdk"
 	"github.com/matryer/is"
@@ -30,8 +31,13 @@ import (
 
 const (
 	testTable        = "CONDUIT_INTEGRATION_TEST_DESTINATION_TABLE"
-	queryCreateTable = "CREATE DIMENSION TABLE CONDUIT_INTEGRATION_TEST_DESTINATION_TABLE" +
-		" (id string, name TEXT)"
+	queryCreateTable = `
+   CREATE DIMENSION TABLE CONDUIT_INTEGRATION_TEST_DESTINATION_TABLE (
+         id STRING,
+         name TEXT,
+         created_date date,
+         weight FLOAT,
+		 is_active BOOL)`
 	queryDropTable = "DROP TABLE IF EXISTS CONDUIT_INTEGRATION_TEST_DESTINATION_TABLE"
 )
 
@@ -65,11 +71,19 @@ func TestDestination_Write_Success(t *testing.T) {
 	rc1 := map[string]any{
 		"id":   "1",
 		"name": "vasyl",
+		"created_date": time.Date(
+			2009, 11, 17, 20, 34, 58, 651387237, time.UTC),
+		"weight":    65.78,
+		"is_active": true,
 	}
 
 	rc2 := map[string]any{
 		"id":   "2",
 		"name": "petro",
+		"created_date": time.Date(
+			2010, 11, 17, 20, 34, 58, 651387237, time.UTC),
+		"weight":    75.78,
+		"is_active": false,
 	}
 
 	count, err := d.Write(ctx, []sdk.Record{
@@ -91,6 +105,13 @@ func TestDestination_Write_Success(t *testing.T) {
 
 	// check data in firebolt
 	data, err := d.client.GetRows(ctx, cfg[config.KeyTable], []string{cfg[config.KeyPrimaryKey]}, nil, 2, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// for comparing purpose
+	rc1["created_date"] = "2009-11-17"
+	rc2["created_date"] = "2010-11-17"
 
 	is.Equal(data[0], rc1)
 	is.Equal(data[1], rc2)
@@ -175,6 +196,7 @@ func prepareConfig() (map[string]string, error) {
 		config.KeyEngineName:  engineName,
 		config.KeyDB:          db,
 		config.KeyTable:       testTable,
+		config.KeyPrimaryKey:  "id",
 	}, nil
 }
 
