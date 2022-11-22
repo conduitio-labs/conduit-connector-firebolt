@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	sdk "github.com/conduitio/conduit-connector-sdk"
@@ -502,8 +503,8 @@ func (c *Client) GetColumnTypes(
 	}
 
 	for i := range resp.Data {
-		colTypes[fmt.Sprintf("%v",
-			resp.Data[i]["column_name"])] = fmt.Sprintf("%v", resp.Data[i]["data_type"])
+		colTypes[strings.ToLower(fmt.Sprintf("%v",
+			resp.Data[i]["column_name"]))] = strings.ToLower(fmt.Sprintf("%v", resp.Data[i]["data_type"]))
 	}
 
 	return colTypes, nil

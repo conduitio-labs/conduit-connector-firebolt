@@ -32,8 +32,8 @@ const (
 	metadataTable = "firebolt.table"
 
 	// column types.
-	typeTimestamp = "TIMESTAMP"
-	typeDate      = "DATE"
+	typeTimestamp = "timestamp"
+	typeDate      = "date"
 )
 
 var (
