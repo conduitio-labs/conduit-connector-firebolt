@@ -430,10 +430,25 @@ func (c *Client) checkRetry(ctx context.Context, resp *http.Response, err error)
 		return false, ctx.Err()
 	}
 
+	// reading response, because it can contain error text
+	rawResponse, readErr := io.ReadAll(resp.Body)
+	if readErr != nil {
+		return false, readErr
+	}
+
+	// returning data into response, because that could be read after retries
+	resp.Body = io.NopCloser(bytes.NewBuffer(rawResponse))
+
+	// check response for errors
+	var respErr error
+	if rawResponse != nil {
+		respErr = errors.New(string(rawResponse))
+	}
+
 	// don't propagate other errors
 	shouldRetry, _ := retryablehttp.DefaultRetryPolicy(ctx, resp, err)
 	if shouldRetry {
-		return true, nil
+		return true, respErr
 	}
 
 	if resp != nil && resp.StatusCode == http.StatusUnauthorized {
@@ -445,7 +460,7 @@ func (c *Client) checkRetry(ctx context.Context, resp *http.Response, err error)
 		resp.Request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.accessToken))
 
 		// shouldRetry is true cause we need to retry one more time with the new access token.
-		return true, nil
+		return true, respErr
 	}
 
 	return false, nil
