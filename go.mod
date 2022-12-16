@@ -9,7 +9,7 @@ require (
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/golang/mock v1.6.0
 	github.com/hashicorp/go-retryablehttp v0.7.1
-	github.com/huandu/go-sqlbuilder v1.17.0
+	github.com/huandu/go-sqlbuilder v1.18.0
 	github.com/matryer/is v1.4.0
 	go.uber.org/goleak v1.1.12
 	go.uber.org/multierr v1.9.0
