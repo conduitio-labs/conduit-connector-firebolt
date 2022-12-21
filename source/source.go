@@ -86,15 +86,21 @@ func (s *Source) Parameters() map[string]sdk.Parameter {
 			Required:    false,
 			Description: "Comma separated list of column names that should be included in each Record's payload.",
 		},
-		config.KeyPrimaryKey: {
+		config.KeyPrimaryKeys: {
 			Default:     "",
-			Required:    true,
+			Required:    false,
 			Description: "Columns names that records should use for their `Key` fields.",
 		},
 		config.KeyBatchSize: {
 			Default:     "100",
 			Required:    false,
 			Description: "Size of batch",
+		},
+		config.KeyOrderingColumns: {
+			Default:  "",
+			Required: true,
+			Description: "Name of columns that the connector will use for ordering rows. Column must contain unique " +
+				"values and suitable for sorting, otherwise the source won't work correctly.",
 		},
 	}
 }
@@ -126,7 +132,7 @@ func (s *Source) Open(ctx context.Context, rp sdk.Position) error {
 	}
 
 	s.iterator = iterator.NewSnapshotIterator(fireboltClient, s.config.BatchSize, s.config.Table, s.config.Columns,
-		s.config.PrimaryKeys)
+		s.config.OrderingColumns, s.config.PrimaryKeys)
 
 	ctxWithTimeOut, cancel := context.WithTimeout(ctx, 10*time.Minute)
 	defer cancel()

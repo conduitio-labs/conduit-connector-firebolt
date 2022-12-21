@@ -42,6 +42,8 @@ const (
 
 	databaseURL = "https://%s/?database=%s"
 
+	queryShowIndexes = "SHOW INDEXES;"
+
 	// retryMax is the maximum number of retries.
 	retryMax = 3
 	// engineStatusCheckTimeout is a timeout for checking engine status.
@@ -470,10 +472,10 @@ func (c *Client) checkRetry(ctx context.Context, resp *http.Response, err error)
 func (c *Client) GetRows(
 	ctx context.Context,
 	table string,
-	primaryKeys, columns []string,
+	orderingColumns, columns []string,
 	limit, offset int,
 ) ([]map[string]any, error) {
-	q := buildGetDataQuery(table, primaryKeys, columns, offset, limit)
+	q := buildGetDataQuery(table, orderingColumns, columns, offset, limit)
 	resp, err := c.RunQuery(ctx, q)
 	if err != nil {
 		return nil, fmt.Errorf("run query: %w", err)
@@ -525,7 +527,34 @@ func (c *Client) GetColumnTypes(
 	return colTypes, nil
 }
 
-func buildGetDataQuery(table string, primaryKey, fields []string, offset, limit int) string {
+// GetPrimaryKeys returns the names of primary indexes columns.
+func (c *Client) GetPrimaryKeys(
+	ctx context.Context,
+	table string,
+) ([]string, error) {
+	var primaryKeys []string
+
+	resp, err := c.RunQuery(ctx, queryShowIndexes)
+	if err != nil {
+		return nil, fmt.Errorf("run query %q: %w", queryShowIndexes, err)
+	}
+
+	table = strings.ToLower(table)
+
+	for i := range resp.Data {
+		if resp.Data[i]["table_name"] == table && resp.Data[i]["type"] == "primary" {
+			expression := resp.Data[i]["expression"].(string)
+
+			primaryKeys = strings.Split(expression[1:len(expression)-1], ",")
+
+			break
+		}
+	}
+
+	return primaryKeys, nil
+}
+
+func buildGetDataQuery(table string, orderingColumns, fields []string, offset, limit int) string {
 	sb := sqlbuilder.NewSelectBuilder()
 
 	if len(fields) == 0 {
@@ -537,7 +566,7 @@ func buildGetDataQuery(table string, primaryKey, fields []string, offset, limit 
 	sb.From(table)
 	sb.Offset(offset)
 	sb.Limit(limit)
-	sb.OrderBy(primaryKey...)
+	sb.OrderBy(orderingColumns...)
 
 	return sb.String()
 }

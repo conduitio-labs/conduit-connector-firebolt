@@ -109,13 +109,13 @@ func prepareConfig(t *testing.T) map[string]string {
 	}
 
 	cfg := map[string]string{
-		config.KeyEmail:       email,
-		config.KeyPassword:    password,
-		config.KeyAccountName: accountName,
-		config.KeyEngineName:  engineName,
-		config.KeyDB:          db,
-		config.KeyPrimaryKey:  "id",
-		config.KeyBatchSize:   "100",
+		config.KeyEmail:           email,
+		config.KeyPassword:        password,
+		config.KeyAccountName:     accountName,
+		config.KeyEngineName:      engineName,
+		config.KeyDB:              db,
+		config.KeyOrderingColumns: "id",
+		config.KeyBatchSize:       "100",
 	}
 
 	return cfg

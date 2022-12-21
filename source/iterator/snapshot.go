@@ -21,10 +21,9 @@ import (
 	"fmt"
 	"time"
 
-	sdk "github.com/conduitio/conduit-connector-sdk"
-
 	"github.com/conduitio-labs/conduit-connector-firebolt/client"
 	"github.com/conduitio-labs/conduit-connector-firebolt/source/position"
+	sdk "github.com/conduitio/conduit-connector-sdk"
 )
 
 const (
@@ -52,20 +51,24 @@ type SnapshotIterator struct {
 	columns []string
 	// table which iterator read.
 	table string
+	// orderingColumns name of columns that the connector will use for ordering rows.
+	orderingColumns []string
 }
 
 func NewSnapshotIterator(
 	client *client.Client,
 	batchSize int,
 	table string,
-	columns, primaryKeys []string,
+	columns, orderingColumns, primaryKeys []string,
 ) *SnapshotIterator {
 	return &SnapshotIterator{
-		client:      client,
-		batchSize:   batchSize,
-		primaryKeys: primaryKeys,
-		columns:     columns,
-		table:       table}
+		client:          client,
+		batchSize:       batchSize,
+		primaryKeys:     primaryKeys,
+		columns:         columns,
+		table:           table,
+		orderingColumns: orderingColumns,
+	}
 }
 
 // Setup iterator.
@@ -79,9 +82,14 @@ func (i *SnapshotIterator) Setup(ctx context.Context, p sdk.Position) error {
 		i.rowNumber = pos.RowNumber + 1
 	}
 
-	rows, err := i.client.GetRows(ctx, i.table, i.primaryKeys, i.columns, i.batchSize, i.rowNumber)
+	err := i.populatePrimaryKeys(ctx)
 	if err != nil {
-		sdk.Logger(ctx).Debug().Str("table", i.table).Strs("primaryKeys", i.primaryKeys).
+		return fmt.Errorf("populate primary keys: %w", err)
+	}
+
+	rows, err := i.client.GetRows(ctx, i.table, i.orderingColumns, i.columns, i.batchSize, i.rowNumber)
+	if err != nil {
+		sdk.Logger(ctx).Debug().Str("table", i.table).Strs("orderingColumns", i.orderingColumns).
 			Strs("columns", i.columns).Int("batchSize", i.batchSize).
 			Int("rowNumber", i.rowNumber).Msg("get rows parameters")
 
@@ -101,7 +109,7 @@ func (i *SnapshotIterator) HasNext(ctx context.Context) (bool, error) {
 		return true, nil
 	}
 
-	i.currentBatch, err = i.client.GetRows(ctx, i.table, i.primaryKeys, i.columns, i.batchSize, i.rowNumber)
+	i.currentBatch, err = i.client.GetRows(ctx, i.table, i.orderingColumns, i.columns, i.batchSize, i.rowNumber)
 	if err != nil {
 		return false, err
 	}
@@ -159,6 +167,29 @@ func (i *SnapshotIterator) Stop(ctx context.Context) error {
 // Ack check if record with position was recorded.
 func (i *SnapshotIterator) Ack(ctx context.Context, rp sdk.Position) error {
 	sdk.Logger(ctx).Debug().Str("position", string(rp)).Msg("got ack")
+
+	return nil
+}
+
+// populatePrimaryKeys populates primaryKeys (if it's empty) from the database metadata
+// or from the orderingColumn configuration field in the described order if it's empty.
+func (i *SnapshotIterator) populatePrimaryKeys(ctx context.Context) error {
+	if len(i.primaryKeys) != 0 {
+		return nil
+	}
+
+	var err error
+
+	i.primaryKeys, err = i.client.GetPrimaryKeys(ctx, i.table)
+	if err != nil {
+		return fmt.Errorf("get primary keys: %w", err)
+	}
+
+	if len(i.primaryKeys) != 0 {
+		return nil
+	}
+
+	i.primaryKeys = i.orderingColumns
 
 	return nil
 }
