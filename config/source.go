@@ -29,7 +29,7 @@ const (
 	// KeyBatchSize is a config name for a batch size.
 	KeyBatchSize string = "batchSize"
 	// KeyPrimaryKey is a config name for a primary key.
-	KeyPrimaryKey string = "primaryKey"
+	KeyPrimaryKey string = "primaryKeys"
 
 	// defaultBatchSize is a default batch size.
 	defaultBatchSize = 100
