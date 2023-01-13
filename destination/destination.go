@@ -145,8 +145,8 @@ func (d *Destination) Write(ctx context.Context, records []sdk.Record) (int, err
 		// Destination inserts record if operation value is snapshot or create
 		err := sdk.Util.Destination.Route(ctx, record,
 			d.writer.InsertRecord,
-			nil,
-			nil,
+			emptyHandle,
+			emptyHandle,
 			d.writer.InsertRecord,
 		)
 		if err != nil {
@@ -163,5 +163,10 @@ func (d *Destination) Teardown(ctx context.Context) error {
 		return d.writer.Close(ctx)
 	}
 
+	return nil
+}
+
+// emptyHandle - default function to replacing update, delete functions for sdk.Route.
+func emptyHandle(ctx context.Context, record sdk.Record) error {
 	return nil
 }
