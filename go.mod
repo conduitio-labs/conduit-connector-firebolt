@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/conduitio/conduit-connector-sdk v0.2.1-0.20220812170036-f0ac2714fe94
-	github.com/go-playground/locales v0.14.0
+	github.com/go-playground/locales v0.14.1
 	github.com/go-playground/universal-translator v0.18.0
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/golang/mock v1.6.0
@@ -35,8 +35,8 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
 	golang.org/x/net v0.0.0-20220621193019-9d032be2e588 // indirect
-	golang.org/x/sys v0.0.0-20220615213510-4f61da869c0c // indirect
-	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
+	golang.org/x/text v0.3.8 // indirect
 	golang.org/x/time v0.0.0-20220722155302-e5dcc9cfc0b9 // indirect
 	google.golang.org/genproto v0.0.0-20220621134657-43db42f103f7 // indirect
 	google.golang.org/grpc v1.47.0 // indirect
