@@ -1,3 +1,9 @@
+**Test Run 01/10/2023 - Test Firebolt Source/Destination after changes**
+
+**branch:** https://github.com/conduitio-labs/conduit-connector-firebolt/tree/main
+
+**commit** 628b09760e38ba7b11c4de6b982ead024dd40c22
+
 | ID       | Title                                                                                                                                                                                                                               | Status | Comment |
 | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------- |
 | T3168221 | Data from two different Firebolt source connectors are transferred to the Postgres Destination connector                                                                                                                            | Passed |         |
@@ -49,7 +55,7 @@
 | T3181672 | Remove data in MongoDB table while running pipeline (or restart run pipeline) -> data isn't removed from Firebolt table                                                                                                             | Passed |         |
 | T3181725 | Update data in MongoDB while running pipeline (or restart run pipeline) -> data isn't updated in Firebolt table                                                                                                                     | Passed |         |
 | T3181863 | Data from two different Firebolt source connectors are transferred to the MongoDB Destination connector                                                                                                                             | Passed |         |
-| T3181873 | Transfer data from the Firebolt Sources to two MongoDB Destination with the same config - > data is transferred and duplicated (is transferred once; an error occurs if the ""_id"" field is transferred in the payload)            | Passed |         |
+| T3181873 | Transfer data from the Firebolt Sources to two MongoDB Destination with the same config - > data is transferred and duplicated (is transferred once; an error occurs if the "_id" field is transferred in the payload)            | Passed |         |
 | T3194662 | Data from two different Redshift source connectors are transferred to the Firebolt Destination connector                                                                                                                            | Passed |         |
 | T3194664 | Try to transfer data from two Redshift Sources with the same config to the Firebolt Destination - > data is transferred and duplicated                                                                                              | Passed |         |
 | T3194581 | 1\. Create one Redshift Source -> 2. Create two Firebolt Destination connectors with the same config -> 3. Start the pipeline -> the data is recorded and duplicated (data isn't duplicated if used primary key)                    | Passed |         |
