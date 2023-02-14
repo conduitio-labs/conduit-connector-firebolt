@@ -11,7 +11,7 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.2
 	github.com/huandu/go-sqlbuilder v1.19.0
 	github.com/matryer/is v1.4.0
-	go.uber.org/goleak v1.2.0
+	go.uber.org/goleak v1.2.1
 	go.uber.org/multierr v1.9.0
 )
 
