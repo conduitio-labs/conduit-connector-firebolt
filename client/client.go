@@ -48,6 +48,10 @@ const (
 	engineStatusCheckTimeout = time.Second * 5
 )
 
+var (
+	layouts = []string{"2006-01-02", "2006-01-02 15:04:05"}
+)
+
 // Client for calls to firebolt.
 type Client struct {
 	accessToken    string
@@ -582,6 +586,26 @@ func prepareRunQueryResponseData(resp *RunQueryResponse) error {
 				return parsed != 0, nil
 			}
 		}
+		if meta.Type == MetaTypeDATE || meta.Type == MetaTypeTIMESTAMP ||
+			meta.Type == MetaTypeNullableTIMESTAMP || meta.Type == MetaTypeNullableDATE {
+			mutations[meta.Name] = func(value any) (any, error) {
+				if value == nil {
+					return nil, nil
+				}
+
+				parsed, ok := value.(string)
+				if !ok {
+					return nil, ErrCannotCastValueToString
+				}
+
+				t, err := parseTime(parsed)
+				if err != nil {
+					return nil, ErrCannotParseTime
+				}
+
+				return t, nil
+			}
+		}
 	}
 
 	var err error
@@ -599,4 +623,17 @@ func prepareRunQueryResponseData(resp *RunQueryResponse) error {
 	}
 
 	return nil
+}
+
+func parseTime(val string) (time.Time, error) {
+	for _, l := range layouts {
+		timeValue, err := time.Parse(l, val)
+		if err != nil {
+			continue
+		}
+
+		return timeValue, nil
+	}
+
+	return time.Time{}, fmt.Errorf("%s - %w", val, ErrCannotParseTime)
 }
