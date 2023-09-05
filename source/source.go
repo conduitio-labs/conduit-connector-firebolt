@@ -106,7 +106,7 @@ func (s *Source) Parameters() map[string]sdk.Parameter {
 }
 
 // Configure parses and stores configurations, returns an error in case of invalid configuration.
-func (s *Source) Configure(ctx context.Context, cfgRaw map[string]string) error {
+func (s *Source) Configure(_ context.Context, cfgRaw map[string]string) error {
 	cfg, err := config.ParseSource(cfgRaw)
 	if err != nil {
 		return err

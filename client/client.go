@@ -274,7 +274,7 @@ func (c *Client) WaitEngineStarted(ctx context.Context) error {
 }
 
 // Close closes the HTTP client connections.
-func (c *Client) Close(ctx context.Context) {
+func (c *Client) Close(_ context.Context) {
 	c.httpClient.CloseIdleConnections()
 }
 

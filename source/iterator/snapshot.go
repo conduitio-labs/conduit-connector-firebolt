@@ -118,7 +118,7 @@ func (i *SnapshotIterator) HasNext(ctx context.Context) (bool, error) {
 }
 
 // Next get new record.
-func (i *SnapshotIterator) Next(ctx context.Context) (sdk.Record, error) {
+func (i *SnapshotIterator) Next(_ context.Context) (sdk.Record, error) {
 	pos := position.NewPosition(i.rowNumber)
 
 	payload, err := json.Marshal(i.currentBatch[0])
