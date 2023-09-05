@@ -52,53 +52,64 @@ func New() sdk.Source {
 func (s *Source) Parameters() map[string]sdk.Parameter {
 	return map[string]sdk.Parameter{
 		config.KeyEmail: {
-			Default:     "",
-			Required:    true,
+			Default: "",
+			Validations: []sdk.Validation{
+				sdk.ValidationRequired{},
+			},
 			Description: "The Firebolt email account.",
 		},
 		config.KeyPassword: {
-			Default:     "",
-			Required:    true,
+			Default: "",
+			Validations: []sdk.Validation{
+				sdk.ValidationRequired{},
+			},
 			Description: "The Firebolt account password.",
 		},
 		config.KeyDB: {
-			Default:     "",
-			Required:    true,
+			Default: "",
+			Validations: []sdk.Validation{
+				sdk.ValidationRequired{},
+			},
 			Description: "The Firebolt database name.",
 		},
 		config.KeyAccountName: {
-			Default:     "",
-			Required:    true,
+			Default: "",
+			Validations: []sdk.Validation{
+				sdk.ValidationRequired{},
+			},
 			Description: "The Firebolt account name.",
 		},
 		config.KeyEngineName: {
-			Default:     "",
-			Required:    true,
+			Default: "",
+			Validations: []sdk.Validation{
+				sdk.ValidationRequired{},
+			},
 			Description: "The Firebolt engine name.",
 		},
 		config.KeyTable: {
-			Default:     "",
-			Required:    true,
+			Default: "",
+			Validations: []sdk.Validation{
+				sdk.ValidationRequired{},
+			},
 			Description: "The table name.",
 		},
 		config.KeyColumns: {
 			Default:     "",
-			Required:    false,
 			Description: "Comma separated list of column names that should be included in each Record's payload.",
 		},
 		config.KeyPrimaryKeys: {
 			Default:     "",
-			Required:    false,
 			Description: "Columns names that records should use for their `Key` fields.",
 		},
 		config.KeyBatchSize: {
 			Default:     "100",
-			Required:    false,
 			Description: "Size of batch",
 		},
 		config.KeyOrderingColumns: {
-			Default:  "",
-			Required: true,
+			Default: "",
+			Validations: []sdk.Validation{
+				sdk.ValidationRequired{},
+			},
 			Description: "Name of columns that the connector will use for ordering rows. Column must contain unique " +
 				"values and suitable for sorting, otherwise the source won't work correctly.",
 		},
