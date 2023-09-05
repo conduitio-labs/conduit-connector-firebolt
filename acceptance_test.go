@@ -43,7 +43,7 @@ type driver struct {
 }
 
 // GenerateRecord generates a random sdk.Record.
-func (d *driver) GenerateRecord(t *testing.T, op sdk.Operation) sdk.Record {
+func (d *driver) GenerateRecord(_ *testing.T, op sdk.Operation) sdk.Record {
 	atomic.AddInt64(&d.counter, 1)
 
 	return sdk.Record{
@@ -71,7 +71,7 @@ func TestAcceptance(t *testing.T) {
 				Connector:         Connector,
 				SourceConfig:      cfg,
 				DestinationConfig: cfg,
-				BeforeTest:        beforeTest(t, cfg),
+				BeforeTest:        beforeTest(cfg),
 				Skip: []string{
 					// Firebolt doesn't have cdc iterator
 					"TestSource_Open_ResumeAtPositionCDC",
@@ -88,7 +88,7 @@ func TestAcceptance(t *testing.T) {
 }
 
 // beforeTest creates new table before each test.
-func beforeTest(t *testing.T, cfg map[string]string) func(t *testing.T) {
+func beforeTest(cfg map[string]string) func(t *testing.T) {
 	return func(t *testing.T) {
 		is := is.New(t)
 
@@ -109,13 +109,13 @@ func prepareConfig(t *testing.T) map[string]string {
 	}
 
 	cfg := map[string]string{
-		config.KeyEmail:       email,
-		config.KeyPassword:    password,
-		config.KeyAccountName: accountName,
-		config.KeyEngineName:  engineName,
-		config.KeyDB:          db,
-		config.KeyPrimaryKey:  "id",
-		config.KeyBatchSize:   "100",
+		config.KeyEmail:           email,
+		config.KeyPassword:        password,
+		config.KeyAccountName:     accountName,
+		config.KeyEngineName:      engineName,
+		config.KeyDB:              db,
+		config.KeyOrderingColumns: "id",
+		config.KeyBatchSize:       "100",
 	}
 
 	return cfg

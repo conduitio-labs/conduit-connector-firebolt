@@ -84,7 +84,7 @@ func (d *Destination) Parameters() map[string]sdk.Parameter {
 }
 
 // Configure parses and initializes the Destination config.
-func (d *Destination) Configure(ctx context.Context, cfg map[string]string) error {
+func (d *Destination) Configure(_ context.Context, cfg map[string]string) error {
 	configuration, err := config.ParseDestination(cfg)
 	if err != nil {
 		return fmt.Errorf("parse config: %w", err)
@@ -109,7 +109,7 @@ func (d *Destination) Open(ctx context.Context) error {
 		return fmt.Errorf("client login: %w", err)
 	}
 
-	d.writer, err = writer.NewWriter(ctx, d.client, d.config.Table)
+	d.writer, err = writer.NewWriter(d.client, d.config.Table)
 	if err != nil {
 		return fmt.Errorf("create writer: %w", err)
 	}
@@ -167,6 +167,6 @@ func (d *Destination) Teardown(ctx context.Context) error {
 }
 
 // emptyHandle - default function to replacing update, delete functions for sdk.Route.
-func emptyHandle(ctx context.Context, record sdk.Record) error {
+func emptyHandle(_ context.Context, _ sdk.Record) error {
 	return nil
 }

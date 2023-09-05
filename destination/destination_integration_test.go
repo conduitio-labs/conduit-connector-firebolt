@@ -107,7 +107,7 @@ func TestDestination_Write_Success(t *testing.T) {
 	is.NoErr(err)
 
 	// check data in firebolt
-	data, err := d.client.GetRows(ctx, cfg[config.KeyTable], []string{cfg[config.KeyPrimaryKey]}, nil, 2, 0)
+	data, err := d.client.GetRows(ctx, cfg[config.KeyTable], []string{cfg[config.KeyOrderingColumns]}, nil, 2, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -193,13 +193,13 @@ func prepareConfig() (map[string]string, error) {
 	}
 
 	return map[string]string{
-		config.KeyEmail:       email,
-		config.KeyPassword:    password,
-		config.KeyAccountName: accountName,
-		config.KeyEngineName:  engineName,
-		config.KeyDB:          db,
-		config.KeyTable:       testTable,
-		config.KeyPrimaryKey:  "id",
+		config.KeyEmail:           email,
+		config.KeyPassword:        password,
+		config.KeyAccountName:     accountName,
+		config.KeyEngineName:      engineName,
+		config.KeyDB:              db,
+		config.KeyTable:           testTable,
+		config.KeyOrderingColumns: "id",
 	}, nil
 }
 

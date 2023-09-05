@@ -52,55 +52,72 @@ func New() sdk.Source {
 func (s *Source) Parameters() map[string]sdk.Parameter {
 	return map[string]sdk.Parameter{
 		config.KeyEmail: {
-			Default:     "",
-			Required:    true,
+			Default: "",
+			Validations: []sdk.Validation{
+				sdk.ValidationRequired{},
+			},
 			Description: "The Firebolt email account.",
 		},
 		config.KeyPassword: {
-			Default:     "",
-			Required:    true,
+			Default: "",
+			Validations: []sdk.Validation{
+				sdk.ValidationRequired{},
+			},
 			Description: "The Firebolt account password.",
 		},
 		config.KeyDB: {
-			Default:     "",
-			Required:    true,
+			Default: "",
+			Validations: []sdk.Validation{
+				sdk.ValidationRequired{},
+			},
 			Description: "The Firebolt database name.",
 		},
 		config.KeyAccountName: {
-			Default:     "",
-			Required:    true,
+			Default: "",
+			Validations: []sdk.Validation{
+				sdk.ValidationRequired{},
+			},
 			Description: "The Firebolt account name.",
 		},
 		config.KeyEngineName: {
-			Default:     "",
-			Required:    true,
+			Default: "",
+			Validations: []sdk.Validation{
+				sdk.ValidationRequired{},
+			},
 			Description: "The Firebolt engine name.",
 		},
 		config.KeyTable: {
-			Default:     "",
-			Required:    true,
+			Default: "",
+			Validations: []sdk.Validation{
+				sdk.ValidationRequired{},
+			},
 			Description: "The table name.",
 		},
 		config.KeyColumns: {
 			Default:     "",
-			Required:    false,
 			Description: "Comma separated list of column names that should be included in each Record's payload.",
 		},
-		config.KeyPrimaryKey: {
+		config.KeyPrimaryKeys: {
 			Default:     "",
-			Required:    true,
 			Description: "Columns names that records should use for their `Key` fields.",
 		},
 		config.KeyBatchSize: {
 			Default:     "100",
-			Required:    false,
 			Description: "Size of batch",
+		},
+		config.KeyOrderingColumns: {
+			Default: "",
+			Validations: []sdk.Validation{
+				sdk.ValidationRequired{},
+			},
+			Description: "Name of columns that the connector will use for ordering rows. Column must contain unique " +
+				"values and suitable for sorting, otherwise the source won't work correctly.",
 		},
 	}
 }
 
 // Configure parses and stores configurations, returns an error in case of invalid configuration.
-func (s *Source) Configure(ctx context.Context, cfgRaw map[string]string) error {
+func (s *Source) Configure(_ context.Context, cfgRaw map[string]string) error {
 	cfg, err := config.ParseSource(cfgRaw)
 	if err != nil {
 		return err
@@ -126,7 +143,7 @@ func (s *Source) Open(ctx context.Context, rp sdk.Position) error {
 	}
 
 	s.iterator = iterator.NewSnapshotIterator(fireboltClient, s.config.BatchSize, s.config.Table, s.config.Columns,
-		s.config.PrimaryKeys)
+		s.config.OrderingColumns, s.config.PrimaryKeys)
 
 	ctxWithTimeOut, cancel := context.WithTimeout(ctx, 10*time.Minute)
 	defer cancel()

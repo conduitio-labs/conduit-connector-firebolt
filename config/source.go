@@ -28,8 +28,10 @@ const (
 	KeyColumns string = "columns"
 	// KeyBatchSize is a config name for a batch size.
 	KeyBatchSize string = "batchSize"
-	// KeyPrimaryKey is a config name for a primary key.
-	KeyPrimaryKey string = "primaryKeys"
+	// KeyPrimaryKeys is a config name for a primaryKeys field.
+	KeyPrimaryKeys string = "primaryKeys"
+	// KeyOrderingColumns is a config name for the orderingColumns field.
+	KeyOrderingColumns = "orderingColumns"
 
 	// defaultBatchSize is a default batch size.
 	defaultBatchSize = 100
@@ -44,7 +46,9 @@ type Source struct {
 	// BatchSize - size of batch.
 	BatchSize int `validate:"gte=1,lte=100"`
 	// PrimaryKeys - columns names that records should use for their `Key` fields.
-	PrimaryKeys []string `validate:"required"`
+	PrimaryKeys []string
+	// OrderingColumns is a name of columns that the connector will use for ordering rows.
+	OrderingColumns []string `key:"orderingColumns" validate:"required"`
 }
 
 // ParseSource attempts to parse plugins.Config into a Source struct.
@@ -63,8 +67,12 @@ func ParseSource(cfg map[string]string) (Source, error) {
 		source.Columns = strings.Split(colsRaw, ",")
 	}
 
-	if colsRaw := cfg[KeyPrimaryKey]; colsRaw != "" {
+	if colsRaw := cfg[KeyPrimaryKeys]; colsRaw != "" {
 		source.PrimaryKeys = strings.Split(colsRaw, ",")
+	}
+
+	if colsRaw := cfg[KeyOrderingColumns]; colsRaw != "" {
+		source.OrderingColumns = strings.Split(colsRaw, ",")
 	}
 
 	if cfg[KeyBatchSize] != "" {

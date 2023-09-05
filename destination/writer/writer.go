@@ -51,11 +51,7 @@ type Writer struct {
 }
 
 // NewWriter creates new instance of the Writer.
-func NewWriter(
-	ctx context.Context,
-	client *client.Client,
-	table string,
-) (*Writer, error) {
+func NewWriter(client *client.Client, table string) (*Writer, error) {
 	return &Writer{
 		client: client,
 		table:  table,
