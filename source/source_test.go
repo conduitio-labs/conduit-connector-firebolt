@@ -21,7 +21,7 @@ import (
 	"testing"
 
 	sdk "github.com/conduitio/conduit-connector-sdk"
-	"github.com/golang/mock/gomock"
+	"go.uber.org/mock/gomock"
 
 	"github.com/conduitio-labs/conduit-connector-firebolt/config"
 	"github.com/conduitio-labs/conduit-connector-firebolt/source/mock"
