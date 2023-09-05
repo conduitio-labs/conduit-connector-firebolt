@@ -29,4 +29,8 @@ var (
 	ErrColumnsValuesLenMismatch = errors.New("number of columns must be equal to number of values")
 	// ErrCannotCastValueToFloat64 occurs when trying to cast any to float64 but it failed.
 	ErrCannotCastValueToFloat64 = errors.New("cannot cast value to float64")
+	// ErrCannotCastValueToString occurs when trying to cast any to string but it failed.
+	ErrCannotCastValueToString = errors.New("cannot cast value to string")
+	// ErrCannotParseTime occurs when trying to cast any to string but it failed.
+	ErrCannotParseTime = errors.New("parse time error")
 )

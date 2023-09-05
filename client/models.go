@@ -24,6 +24,14 @@ const (
 
 	// MetaTypeUInt8 represents an internal Firebolt's type used for boolean.
 	MetaTypeUInt8 = "UInt8"
+	// MetaTypeDATE represents Firebolt's type used for date.
+	MetaTypeDATE = "Date"
+	// MetaTypeNullableDATE represents Firebolt's type used for date with NULL constraint.
+	MetaTypeNullableDATE = "Nullable(Date)"
+	// MetaTypeTIMESTAMP represents Firebolt's type used for TIMESTAMP .
+	MetaTypeTIMESTAMP = "DateTime"
+	// MetaTypeNullableTIMESTAMP represents Firebolt's type used for TIMESTAMP with NULL constraint.
+	MetaTypeNullableTIMESTAMP = "Nullable(DateTime)"
 )
 
 // loginRequest is a request model for the login route.

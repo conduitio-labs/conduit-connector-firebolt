@@ -93,12 +93,15 @@ func TestDestination_Write_Success(t *testing.T) {
 		{Payload: sdk.Change{After: sdk.StructuredData(rc2)},
 			Operation: sdk.OperationCreate,
 		},
+		{Payload: sdk.Change{After: sdk.StructuredData(rc2)},
+			Operation: sdk.OperationUpdate,
+		},
 	},
 	)
 
 	is.NoErr(err)
 
-	is.Equal(count, 2)
+	is.Equal(count, 3)
 
 	err = d.Teardown(ctx)
 	is.NoErr(err)

@@ -37,8 +37,10 @@ const (
 
 	queryDropTable = "DROP TABLE IF EXISTS CONDUIT_INTEGRATION_TEST_TABLE"
 
-	queryInsertTestValues = "INSERT INTO CONDUIT_INTEGRATION_TEST_TABLE VALUES ('1', 'test1'), ('2', 'test2'), " +
-		"('3', 'test3')"
+	queryInsertTestValues = `INSERT INTO CONDUIT_INTEGRATION_TEST_TABLE VALUES 
+        ('1', 'test1', '1999-01-31', '1999-01-31 20:33:14'), 
+        ('2', 'test2', '2011-04-31', '2011-12-31 12:27:54'), 
+		('3', 'test3',  NULL, NULL)`
 )
 
 func TestSource_Snapshot(t *testing.T) {
@@ -57,7 +59,7 @@ func TestSource_Snapshot(t *testing.T) {
 
 	err = prepareTableDemensial(ctx, cl)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	s := New()
@@ -66,67 +68,67 @@ func TestSource_Snapshot(t *testing.T) {
 
 	err = s.Configure(ctx, cfg)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	// Start first time with nil position.
 	err = s.Open(ctx, nil)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	// Check first read.
 	r, err := s.Read(ctx)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	var wantedKey sdk.StructuredData
 	wantedKey = map[string]any{"id": "1", "test": "test1"}
 
 	if !reflect.DeepEqual(r.Key, wantedKey) {
-		t.Error(errors.New("wrong record key"))
+		t.Fatal(errors.New("wrong record key"))
 	}
 
 	// Check teardown.
 	err = s.Teardown(ctx)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	// Start from previous position.
 	err = s.Open(ctx, r.Position)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	// Check read after teardown.
 	r, err = s.Read(ctx)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	wantedKey = map[string]any{"id": "2", "test": "test2"}
 
 	if !reflect.DeepEqual(r.Key, wantedKey) {
-		t.Error(errors.New("wrong record key"))
+		t.Fatal(errors.New("wrong record key"))
 	}
 
 	// Check third row.
 	r, err = s.Read(ctx)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	wantedKey = map[string]any{"id": "3", "test": "test3"}
 
 	if !reflect.DeepEqual(r.Key, wantedKey) {
-		t.Error(errors.New("wrong record key"))
+		t.Fatal(errors.New("wrong record key"))
 	}
 
 	err = s.Teardown(ctx)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 }
 
@@ -161,7 +163,7 @@ func TestSource_Snapshot_Empty_Table(t *testing.T) {
 	// Start first time with nil position.
 	err = s.Open(ctx, nil)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	// Check read from empty table.
