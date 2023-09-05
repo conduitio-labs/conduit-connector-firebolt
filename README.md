@@ -14,8 +14,8 @@ The process of starting the engine may take some time, the connector at this mom
 
 ### Prerequisites
 
-- [Go](https://go.dev/) 1.18
-- (optional) [golangci-lint](https://github.com/golangci/golangci-lint) 1.45.2
+- [Go](https://go.dev/) 1.21
+- (optional) [golangci-lint](https://github.com/golangci/golangci-lint) 1.54.2
 - Firebolt ([May 31, 2022 version](https://docs.firebolt.io/general-reference/release-notes-archive.html#may-31-2022))
 
 ### How to build it

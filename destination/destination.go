@@ -167,6 +167,6 @@ func (d *Destination) Teardown(ctx context.Context) error {
 }
 
 // emptyHandle - default function to replacing update, delete functions for sdk.Route.
-func emptyHandle(ctx context.Context, record sdk.Record) error {
+func emptyHandle(_ context.Context, _ sdk.Record) error {
 	return nil
 }
