@@ -11,7 +11,7 @@ require (
 	github.com/go-playground/validator/v10 v10.14.1
 	github.com/golangci/golangci-lint v1.55.2
 	github.com/hashicorp/go-retryablehttp v0.7.4
-	github.com/huandu/go-sqlbuilder v1.22.0
+	github.com/huandu/go-sqlbuilder v1.27.3
 	github.com/matryer/is v1.4.1
 	go.uber.org/goleak v1.2.1
 	go.uber.org/mock v0.2.0
@@ -104,7 +104,7 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb // indirect
 	github.com/hexops/gotextdiff v1.0.3 // indirect
-	github.com/huandu/xstrings v1.3.3 // indirect
+	github.com/huandu/xstrings v1.4.0 // indirect
 	github.com/imdario/mergo v0.3.11 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jgautheron/goconst v1.6.0 // indirect
