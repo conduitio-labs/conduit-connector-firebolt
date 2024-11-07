@@ -13,7 +13,7 @@ require (
 	github.com/huandu/go-sqlbuilder v1.32.0
 	github.com/matryer/is v1.4.1
 	go.uber.org/goleak v1.3.0
-	go.uber.org/mock v0.4.0
+	go.uber.org/mock v0.5.0
 	go.uber.org/multierr v1.11.0
 )
 
