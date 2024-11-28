@@ -1,7 +1,6 @@
 module github.com/conduitio-labs/conduit-connector-firebolt
 
-go 1.21
-toolchain go1.22.5
+go 1.23.2
 
 require (
 	github.com/conduitio/conduit-connector-sdk v0.7.2
@@ -13,7 +12,7 @@ require (
 	github.com/huandu/go-sqlbuilder v1.32.0
 	github.com/matryer/is v1.4.1
 	go.uber.org/goleak v1.3.0
-	go.uber.org/mock v0.4.0
+	go.uber.org/mock v0.5.0
 	go.uber.org/multierr v1.11.0
 )
 
