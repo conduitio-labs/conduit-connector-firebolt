@@ -1,7 +1,6 @@
 module github.com/conduitio-labs/conduit-connector-firebolt
 
-go 1.21
-toolchain go1.22.5
+go 1.23.2
 
 require (
 	github.com/conduitio/conduit-connector-sdk v0.7.2

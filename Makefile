@@ -1,4 +1,3 @@
-GOLANG_CI_LINT_VER	:= 	v1.54.2
 VERSION				:=	$(shell git describe --tags --dirty --always)
 
 .PHONY:
@@ -9,12 +8,8 @@ build:
 test:
 	go test $(GOTEST_FLAGS) -race ./...
 
-.PHONY: golangci-lint-install
-golangci-lint-install:
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLANG_CI_LINT_VER)
-
 .PHONY: lint
-lint: golangci-lint-install
+lint:
 	golangci-lint run -v
 
 .PHONY:
