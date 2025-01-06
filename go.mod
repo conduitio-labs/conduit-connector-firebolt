@@ -7,7 +7,7 @@ require (
 	github.com/go-playground/locales v0.14.1
 	github.com/go-playground/universal-translator v0.18.1
 	github.com/go-playground/validator/v10 v10.23.0
-	github.com/golangci/golangci-lint v1.63.3
+	github.com/golangci/golangci-lint v1.63.4
 	github.com/hashicorp/go-retryablehttp v0.7.7
 	github.com/huandu/go-sqlbuilder v1.33.1
 	github.com/matryer/is v1.4.1
