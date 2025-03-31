@@ -1,12 +1,13 @@
 module github.com/conduitio-labs/conduit-connector-firebolt
 
 go 1.23.2
+toolchain go1.24.1
 
 require (
 	github.com/conduitio/conduit-connector-sdk v0.7.2
 	github.com/go-playground/locales v0.14.1
 	github.com/go-playground/universal-translator v0.18.1
-	github.com/go-playground/validator/v10 v10.25.0
+	github.com/go-playground/validator/v10 v10.26.0
 	github.com/golangci/golangci-lint v1.64.8
 	github.com/hashicorp/go-retryablehttp v0.7.7
 	github.com/huandu/go-sqlbuilder v1.35.0
