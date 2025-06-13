@@ -8,7 +8,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.1
 	github.com/go-playground/validator/v10 v10.26.0
 	github.com/hashicorp/go-retryablehttp v0.7.7
-	github.com/huandu/go-sqlbuilder v1.35.0
+	github.com/huandu/go-sqlbuilder v1.35.1
 	github.com/matryer/is v1.4.1
 	go.uber.org/goleak v1.3.0
 	go.uber.org/mock v0.5.2
