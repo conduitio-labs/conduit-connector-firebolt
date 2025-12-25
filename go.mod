@@ -6,7 +6,7 @@ require (
 	github.com/conduitio/conduit-connector-sdk v0.7.2
 	github.com/go-playground/locales v0.14.1
 	github.com/go-playground/universal-translator v0.18.1
-	github.com/go-playground/validator/v10 v10.30.0
+	github.com/go-playground/validator/v10 v10.30.1
 	github.com/hashicorp/go-retryablehttp v0.7.8
 	github.com/huandu/go-sqlbuilder v1.37.0
 	github.com/matryer/is v1.4.1
